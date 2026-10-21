@@ -32,13 +32,21 @@ export type MoodEvent = {
 
 export type Med = { id: string; name: string; dose: string; active: boolean; createdAt: string; updatedAt: string }
 
-export type Setting = { key: string; value: unknown }
+export type Setting = { key: string; value: unknown; updatedAt?: string }
+
+// registro de exclusões, para a sincronização apagar nos outros aparelhos. id = id de sincronização (ex.: entry:abc)
+export type Tombstone = { id: string; updatedAt: string }
+
+// estado local que nunca sai do aparelho (chave de criptografia, cursores de sincronização)
+export type Meta = { key: string; value: unknown }
 
 class TtspDB extends Dexie {
   entries!: Table<Entry, string>
   events!: Table<MoodEvent, string>
   meds!: Table<Med, string>
   settings!: Table<Setting, string>
+  tombstones!: Table<Tombstone, string>
+  meta!: Table<Meta, string>
 
   constructor() {
     super('ttsp')
@@ -48,6 +56,7 @@ class TtspDB extends Dexie {
       meds: 'id',
       settings: 'key',
     })
+    this.version(2).stores({ tombstones: 'id', meta: 'key' })
   }
 }
 
@@ -66,7 +75,7 @@ export async function getSetting<T>(key: string, fallback: T): Promise<T> {
 }
 
 export async function setSetting(key: string, value: unknown) {
-  await db.settings.put({ key, value })
+  await db.settings.put({ key, value, updatedAt: now() })
 }
 
 export type Settings = { dayStartHour: number; tags: string[]; lastBackupAt: string | null; textScale: number }
@@ -105,4 +114,36 @@ export async function saveEvent(ev: Omit<MoodEvent, 'id' | 'createdAt' | 'update
     await db.events.put(full)
   })
   return full
+}
+
+// a exclusão precisa ser mais nova que a versão que ela apaga, mesmo se o relógio de outro aparelho estiver adiantado
+const after = (updatedAt?: string) => {
+  const t = now()
+  if (!updatedAt || updatedAt < t) return t
+  return new Date(new Date(updatedAt).getTime() + 1).toISOString()
+}
+
+export async function deleteEntry(id: string) {
+  await db.transaction('rw', db.entries, db.tombstones, async () => {
+    const rec = await db.entries.get(id)
+    await db.entries.delete(id)
+    await db.tombstones.put({ id: `entry:${id}`, updatedAt: after(rec?.updatedAt) })
+  })
+}
+
+export async function deleteEvent(id: string) {
+  await db.transaction('rw', db.events, db.tombstones, async () => {
+    const rec = await db.events.get(id)
+    await db.events.delete(id)
+    await db.tombstones.put({ id: `event:${id}`, updatedAt: after(rec?.updatedAt) })
+  })
+}
+
+export async function getMeta<T>(key: string, fallback: T): Promise<T> {
+  const m = await db.meta.get(key)
+  return m ? (m.value as T) : fallback
+}
+
+export async function setMeta(key: string, value: unknown) {
+  await db.meta.put({ key, value })
 }

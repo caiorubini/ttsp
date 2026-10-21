@@ -184,7 +184,7 @@ Exemplos (fato → frase):
 
 ## 9. Dados
 
-Banco IndexedDB `ttsp` via Dexie. Esquema versão 1.
+Banco IndexedDB `ttsp` via Dexie. Esquema versão 2 (a versão 2 acrescenta `tombstones` e `meta`, usadas pela sincronização).
 
 ```ts
 Entry {
@@ -218,6 +218,20 @@ Setting { key: string, value: unknown }
 ```
 
 Backup JSON: `{ app: 'ttsp', version: 1, exportedAt, entries, events, meds, settings }`, sem a chave de IA. Importar mescla por `id`, mantendo o `updatedAt` mais recente.
+
+## 9b. Sincronização com criptografia de ponta a ponta
+
+Objetivo: o mesmo diário em qualquer navegador ou aparelho, com backup automático, sem que ninguém além do usuário consiga ler os dados.
+
+- **Servidor:** um projeto Supabase do próprio usuário. Tabela `ttsp_items` criada por `supabase/schema.sql`. Cada linha é um registro do app (`entry:`, `event:`, `med:`, `setting:` + id) com `updated_at`, `deleted`, `iv` e `data` cifrado. Política de acesso por usuário (RLS). Um gatilho mantém a versão mais nova e marca `synced_at`.
+- **Senha única, duas chaves:** da senha o app deriva no aparelho, com PBKDF2-SHA256 e sais diferentes ligados ao e-mail, (1) a senha de login do Supabase (200 mil iterações, 64 caracteres hex) e (2) a chave AES-GCM de 256 bits dos dados (310 mil iterações). O Supabase só recebe a primeira, e dela não se chega na segunda. A chave dos dados fica guardada no IndexedDB do aparelho como chave não exportável.
+- **Login por e-mail e senha**, sem link mágico, porque no iPhone o link abriria no Safari e não no app instalado. No Supabase, "Confirm email" fica desligado e, depois de criar a conta, novas contas ficam desligadas.
+- **Algoritmo:** a cada escrita local (com 1,5 s de espera), ao abrir o app, ao voltar para ele e ao reconectar: envia tudo que mudou desde o último envio e depois busca tudo com `synced_at` maior que o cursor (menos 5 s de margem). Vence o `updated_at` mais novo. Exclusões viram lápides (`deleted = true`), sempre mais novas que a versão apagada.
+- **Fica só no aparelho:** chave dos dados, cursores, data do último backup e chave de IA.
+- **O que o servidor vê:** quantos itens existem, de que tipo (pelo prefixo do id) e quando mudaram. Nunca o conteúdo.
+- **Senha esquecida:** os dados na nuvem ficam ilegíveis para sempre. Os do aparelho continuam.
+- Configuração pública em `src/config.ts` (URL e chave anon/publishable, públicas por desenho). Nunca a chave service_role.
+- Implementação: `src/lib/crypto.ts`, `src/lib/sync.ts`, `src/ui/SyncSection.tsx`, testes em `src/lib/sync.test.ts`.
 
 ## 10. Arquitetura
 
@@ -263,7 +277,7 @@ Atualizações: o service worker baixa a versão nova em segundo plano e ela val
 | 2 | Hoje (frase determinística, horizonte), Linha (gráfico, faixa, eventos, "isso também vai passar"), lista de registros | feito |
 | 3 | Validação no iPhone real: instalação, offline, persistência, uso por alguns dias | próximo |
 | 4 | Antes/depois de evento, variabilidade, sono e hábitos, relatório de consulta, frases por IA, leitura semanal | a fazer |
-| 4b | Sincronização com criptografia de ponta a ponta (Supabase grátis, senha só do usuário): mesmo diário em qualquer navegador ou aparelho e backup automático | proposto, depende de conta Supabase |
+| 4b | Sincronização com criptografia de ponta a ponta (seção 9b) | feito, falta ligar o projeto Supabase |
 | 5 | Palavras de emoção, WHO-5 quinzenal, lembretes por push, sincronização opcional | a fazer |
 
 ## 13. Em aberto

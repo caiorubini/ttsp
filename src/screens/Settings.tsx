@@ -4,6 +4,7 @@ import { useLive } from '../lib/live'
 import { exportBackup, exportCsv, importBackup } from '../lib/backup'
 import { DEFAULT_TAGS } from '../lib/dims'
 import { daysBetween, fmtDay } from '../lib/day'
+import { SyncSection } from '../ui/SyncSection'
 
 export function Settings({ toast }: { toast: (msg: string) => void }) {
   const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: DEFAULT_TAGS, lastBackupAt: null as string | null, textScale: 1 })
@@ -27,6 +28,8 @@ export function Settings({ toast }: { toast: (msg: string) => void }) {
         <span>ajustes</span>
       </div>
       <h1 class="title">Ajustes</h1>
+
+      <SyncSection toast={toast} />
 
       <div class="section">
         <div class="section-h">

@@ -6,6 +6,7 @@ import '@fontsource-variable/geist'
 import '@fontsource-variable/geist-mono'
 import './styles.css'
 import { App } from './app'
+import { initSync } from './lib/sync'
 
 registerSW({ immediate: true })
 
@@ -13,3 +14,4 @@ registerSW({ immediate: true })
 if (import.meta.env.DEV) import('./lib/db').then((m) => Object.assign(window, { ttspDb: m.db }))
 
 render(<App />, document.getElementById('app')!)
+initSync()

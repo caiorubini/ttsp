@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'preact/hooks'
-import { db, loadSettings, type Entry } from '../lib/db'
+import { db, getMeta, loadSettings, type Entry } from '../lib/db'
 import { useLive } from '../lib/live'
 import { buildDays } from '../lib/analytics'
 import { dailyFact } from '../lib/facts'
@@ -23,6 +23,7 @@ export function Home({ onLog, onNav }: Props) {
   const entries = useLive(() => db.entries.toArray(), [], [] as Entry[])
   const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null, textScale: 1 })
   const [picking, setPicking] = useState(false)
+  const syncing = useLive(async () => !!(await getMeta<string | null>('syncEmail', null)), [], false)
 
   const nowD = new Date()
   const today = logicalDay(nowD, settings.dayStartHour)
@@ -35,7 +36,7 @@ export function Home({ onLog, onNav }: Props) {
   const other: Kind = suggested === 'morning' ? 'night' : 'morning'
 
   const backupAge = settings.lastBackupAt ? daysBetween(fmtDay(new Date(settings.lastBackupAt)), fmtDay(nowD)) : null
-  const needsBackup = entries.length >= 5 && (backupAge == null || backupAge > 7)
+  const needsBackup = !syncing && entries.length >= 5 && (backupAge == null || backupAge > 7)
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'preact/hooks'
-import { db, loadSettings, type Entry, type MoodEvent } from '../lib/db'
+import { db, deleteEntry, loadSettings, type Entry, type MoodEvent } from '../lib/db'
 import { useLive } from '../lib/live'
 import { baseline, buildDays, entryIndex, findPhases, morningNight, rolling, series, type SeriesKey } from '../lib/analytics'
 import { addDays, dayRange, hhmm, kindLabel, logicalDay, MONTHS_FULL, parseDay, shortDay, type Kind } from '../lib/day'
@@ -185,7 +185,7 @@ export function Timeline({ onLog }: Props) {
                       class="btn-text"
                       onClick={async () => {
                         if (confirmDel !== e.id) return setConfirmDel(e.id)
-                        await db.entries.delete(e.id)
+                        await deleteEntry(e.id)
                         setConfirmDel(null)
                         setOpen(null)
                       }}

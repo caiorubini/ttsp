@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks'
-import { db, loadSettings, now, type Med, type MoodEvent } from '../lib/db'
+import { db, deleteEvent, loadSettings, now, type Med, type MoodEvent } from '../lib/db'
 import { useLive } from '../lib/live'
 import { logicalDay, shortDay } from '../lib/day'
 import { EVENT_TYPES, type EventType } from '../lib/dims'
@@ -116,7 +116,7 @@ export function Events() {
                     class="btn-text"
                     onClick={async () => {
                       if (confirmDel !== ev.id) return setConfirmDel(ev.id)
-                      await db.events.delete(ev.id)
+                      await deleteEvent(ev.id)
                       setConfirmDel(null)
                     }}
                   >

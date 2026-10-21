@@ -97,6 +97,8 @@ export async function importBackup(text: string) {
     }
     for (const s of data.settings ?? []) if (!PRIVATE_SETTINGS.has(s.key)) await db.settings.put(s)
   })
+  // registros importados podem ser mais antigos que o último envio: a próxima sincronização manda tudo
+  await db.meta.delete('lastPush')
   return count
 }
 
