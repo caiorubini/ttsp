@@ -59,7 +59,7 @@ export function Chart({ days, from, to, seriesKey, base, events, yMax = 100 }: P
   })
   const roll = rolling(dayVals)
 
-  // períodos de medicação: cada marco de medicação abre uma faixa até o próximo
+  // períodos de medicação: cada evento de medicação abre uma faixa até o próximo
   const meds = events.filter((e) => e.type === 'medicacao').sort((a, b) => a.day.localeCompare(b.day))
   const bands = meds
     .map((ev, i) => ({ ev, start: ev.day, end: meds[i + 1]?.day ?? to, alt: i % 2 === 1 }))

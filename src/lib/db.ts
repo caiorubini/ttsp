@@ -69,7 +69,7 @@ export async function setSetting(key: string, value: unknown) {
   await db.settings.put({ key, value })
 }
 
-export type Settings = { dayStartHour: number; tags: string[]; lastBackupAt: string | null }
+export type Settings = { dayStartHour: number; tags: string[]; lastBackupAt: string | null; textScale: number }
 
 export async function loadSettings(): Promise<Settings> {
   const all = await db.settings.toArray()
@@ -78,10 +78,11 @@ export async function loadSettings(): Promise<Settings> {
     dayStartHour: (map.get('dayStartHour') as number) ?? 5,
     tags: (map.get('tags') as string[]) ?? DEFAULT_TAGS,
     lastBackupAt: (map.get('lastBackupAt') as string) ?? null,
+    textScale: (map.get('textScale') as number) ?? 1,
   }
 }
 
-// salva um marco. um marco de medicação também atualiza (ou cria) o remédio
+// salva um evento. um evento de medicação também atualiza (ou cria) o remédio
 export async function saveEvent(ev: Omit<MoodEvent, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }) {
   const t = now()
   const prev = ev.id ? await db.events.get(ev.id) : undefined

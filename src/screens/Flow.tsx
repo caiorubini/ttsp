@@ -96,6 +96,9 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
   const mood = { humor: values.humor, calma: values.calma, energia: values.energia }
 
   const setDim = (key: DimKey, v: number | null) => setValues((s) => ({ ...s, [key]: v }))
+  const isPast = retro || !!existing?.retro
+  // em um dia passado, as perguntas falam "nesse dia" em vez de "hoje"
+  const when = (q: string) => (isPast ? q.replace('o dia de hoje', 'aquele dia').replace('de hoje', 'desse dia').replace(' hoje', ' nesse dia') : q)
 
   if (!ready) return <div class="flow" />
 
@@ -160,7 +163,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
           {step?.t === 'dim' && (
             <>
               <div class="flow-dim mono">{DIMS[step.key].label}</div>
-              <p class="flow-q">{DIMS[step.key].q}</p>
+              <p class="flow-q">{when(DIMS[step.key].q)}</p>
               <Vas
                 key={step.key}
                 value={values[step.key] ?? null}
@@ -204,7 +207,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
           {step?.t === 'tags' && (
             <>
               <div class="flow-dim mono">contexto</div>
-              <p class="flow-q">O que fez parte do seu dia?</p>
+              <p class="flow-q">{isPast ? 'O que fez parte daquele dia?' : 'O que fez parte do seu dia?'}</p>
               <div class="row">
                 {tagOptions.map((t) => (
                   <button key={t} type="button" class="chip" aria-pressed={tags.includes(t)} onClick={() => setTags((s) => (s.includes(t) ? s.filter((x) => x !== t) : [...s, t]))}>
@@ -218,7 +221,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
           {step?.t === 'meds' && (
             <>
               <div class="flow-dim mono">remédios</div>
-              <p class="flow-q">Você tomou os remédios de hoje?</p>
+              <p class="flow-q">{when('Você tomou os remédios de hoje?')}</p>
               <div>
                 {meds.map((m) => (
                   <div class="med-row" key={m.id}>
@@ -241,8 +244,8 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
 
           {step?.t === 'event' && evMode === 'ask' && (
             <>
-              <div class="flow-dim mono">marco</div>
-              <p class="flow-q">Algo importante aconteceu hoje?</p>
+              <div class="flow-dim mono">evento</div>
+              <p class="flow-q">{when('Algo importante aconteceu hoje?')}</p>
               <p class="note">Uma mudança de remédio, uma frustração, uma notícia boa. É a única parte do registro com texto.</p>
               <div class="row" style={{ marginTop: '22px' }}>
                 <button type="button" class="btn btn-line" onClick={() => go(i + 1)}>
@@ -256,7 +259,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
           )}
           {step?.t === 'event' && evMode === 'form' && (
             <>
-              <div class="flow-dim mono">marco</div>
+              <div class="flow-dim mono">evento</div>
               <p class="flow-q" style={{ marginBottom: '20px' }}>
                 O que aconteceu?
               </p>

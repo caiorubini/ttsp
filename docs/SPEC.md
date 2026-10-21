@@ -29,7 +29,7 @@ Como rodar: `npm install`, `npm run dev` (abre em `/ttsp/`), `npm test`, `npm ru
 - **Afeto tem mais de uma dimensão.** Valência (agradável/desagradável), energia (energetic arousal) e tensão (tense arousal, Thayer) são em boa parte independentes. Por isso humor, energia e calma são escalas separadas.
 - **WHO-5** (domínio público) cobre humor positivo, calma, vitalidade, descanso ao acordar e interesse. Inspira as dimensões e pode entrar como âncora quinzenal (fase 5).
 - **Diário de sono consensual** (Carney et al., 2012): qualidade do sono e sensação de descanso ao acordar, preenchidos até uma hora após levantar.
-- **NIMH Life Chart Method**: registro diário prospectivo de humor com medicação e eventos de vida anotados. Validado em bipolaridade. É o modelo para marcos e faixas de medicação.
+- **NIMH Life Chart Method**: registro diário prospectivo de humor com medicação e eventos de vida anotados. Validado em bipolaridade. É o modelo para eventos e faixas de medicação.
 - **Engajamento**: registro de humor sofre fadiga gradual, e uma revisão de 2026 achou que lembretes podem aumentar abandono. Por isso não há sequências de dias seguidos nem culpa por dia perdido.
 - **Variabilidade**: MSSD (média do quadrado das diferenças sucessivas) é a medida padrão de instabilidade emocional em EMA.
 
@@ -60,11 +60,11 @@ Todas as escalas são VAS de 0 a 100, com polo desagradável à esquerda. O valo
 - `conexao`: isolado ↔ conectado. "Quão conectado você se sentiu com as pessoas hoje?"
 - Contexto do dia (chips de toque, personalizáveis): exercício, ar livre, socializei, álcool, cafeína tarde, tela até tarde, conflito, trabalho pesado, dor física.
 - Remédios: confirmação de cada remédio ativo tomado hoje (sim/não).
-- "Algo importante aconteceu?": abre a criação de um marco, sem sair do fluxo.
+- "Algo importante aconteceu?": abre a criação de um evento, sem sair do fluxo.
 
-### Marcos (única parte com texto)
+### Eventos (única parte com texto)
 
-Tipos: `medicacao`, `bom`, `dificil`, `saude`, `outro`. Campos: dia (pode ser retroativo), título, nota opcional. Um marco de medicação guarda nome do remédio e dose nova (e anterior, quando houver). Cada marco de medicação abre um novo período, desenhado como faixa no gráfico.
+Tipos: `medicacao`, `bom`, `dificil`, `saude`, `outro`. Campos: dia (pode ser retroativo), título, nota opcional. Um evento de medicação guarda nome do remédio e dose nova (e anterior, quando houver). Cada evento de medicação abre um novo período, desenhado como faixa no gráfico.
 
 ### Regras do registro
 
@@ -72,7 +72,7 @@ Tipos: `medicacao`, `bom`, `dificil`, `saude`, `outro`. Campos: dia (pode ser re
 - Toda pergunta tem "pular". Pular grava `null`, nunca um valor inventado.
 - Depois de responder aparece uma linha fina com o valor do registro anterior. Nunca antes, para não ancorar.
 - O dia lógico vira às 5h (configurável). Um registro à 1h conta como noite do dia anterior.
-- Antes das 14h o app sugere "registrar a manhã", depois sugere "registrar a noite".
+- Antes das 14h o app sugere "registrar a manhã", depois sugere "registrar a noite". A sugestão é só o padrão: o usuário sempre pode escolher o momento e o dia.
 - Registro de um dia passado é marcado como `retro` e aparece com outro estilo nos gráficos.
 - Editar um registro reabre o fluxo com os valores preenchidos.
 
@@ -118,11 +118,11 @@ Detalhes e amostras interativas em `docs/design-system.html`. Resumo dos tokens:
 
 ## 6. Telas
 
-1. **Hoje.** Data, frase do dia com a base do cálculo ("a partir de 34 manhãs e 34 noites"), horizonte dos últimos 30 dias (índice, média de 7 dias), ponto de hoje na cor do dia, estado dos registros de hoje e botão principal para registrar. Aviso discreto quando o último backup tem mais de 7 dias.
+1. **Hoje.** Nome do app ("this too shall pass") e data, frase do dia com a base do cálculo ("a partir de 34 manhãs e 34 noites"), horizonte dos últimos 30 dias (índice, média de 7 dias), ponto de hoje na cor do dia, estado dos registros de hoje e botão principal para registrar o momento sugerido pela hora. Cada linha de manhã e noite também abre o seu registro, e "registrar outro momento ou outro dia" deixa escolher manhã ou noite de qualquer dia até hoje. Aviso discreto quando o último backup tem mais de 7 dias.
 2. **Registro.** Fluxo da seção 3 com o fundo assumindo a cor ao vivo. No fim, "sua cor de agora" com nome da cor e valores.
-3. **Linha.** Faixa de cor dos dias, gráfico com recortes (2 semanas, 3 meses, 1 ano, tudo), seleção de dimensão (índice e cada escala), pontos crus apagados, média de 7 dias forte, linha pontilhada do seu normal, marcos como alfinetes, períodos de medicação como faixas. Cartão "isso também passa". Manhã vs. noite. Lista de registros com editar e apagar.
-4. **Marcos.** Lista por data, criação e edição. Gestão dos remédios ativos.
-5. **Ajustes.** Exportar backup (JSON pelo menu de compartilhar), importar backup (mescla por id), exportar CSV, virada do dia, chips do contexto, remédios, chave de IA, estado do armazenamento persistente.
+3. **Linha.** Faixa de cor dos dias, gráfico com recortes (2 semanas, 3 meses, 1 ano, tudo), seleção de dimensão (índice e cada escala), pontos crus apagados, média de 7 dias forte, linha pontilhada do seu normal, eventos como alfinetes, períodos de medicação como faixas. Cartão "isso também vai passar". Manhã vs. noite. Lista de registros com editar e apagar.
+4. **Eventos.** Lista por data, criação e edição. Gestão dos remédios ativos.
+5. **Ajustes.** Tamanho do texto (normal, maior, bem maior), exportar backup (JSON pelo menu de compartilhar), importar backup (mescla por id), exportar CSV, virada do dia, chips do contexto, remédios, chave de IA, estado do armazenamento persistente.
 
 ## 7. Análises
 
@@ -134,9 +134,9 @@ Princípios: toda afirmação mostra o n que a sustenta, nunca há linguagem cau
 - **Seu normal**: mediana dos valores diários dos últimos 90 dias.
 - **Fase abaixo do normal**: sequência de 3 ou mais dias com média móvel menor que o normal − 6. Reporta quantas, duração típica (mediana), a mais longa e o dia atual se houver uma em curso.
 - **Manhã vs. noite**: média da diferença manhã − noite nos dias com os dois registros.
-- **Antes/depois de um marco** (fase 4): janelas de 28 dias, ignorando os 7 primeiros dias depois de um marco de medicação. Diferença de média e MSSD por dimensão, com n.
+- **Antes/depois de um evento** (fase 4): janelas de 28 dias, ignorando os 7 primeiros dias depois de um evento de medicação. Diferença de média e MSSD por dimensão, com n.
 - **Sono e hábitos** (fase 4): diferença do índice no dia seguinte com e sem cada chip ou com sono < 6 h. Mínimo de 8 dias em cada grupo.
-- **Relatório de consulta** (fase 4): página imprimível desde a data da última consulta. Gráfico, marcos, adesão aos remédios, médias por dimensão, sono. Sem texto de IA.
+- **Relatório de consulta** (fase 4): página imprimível desde a data da última consulta. Gráfico, eventos, adesão aos remédios, médias por dimensão, sono. Sem texto de IA.
 
 Implementação: `src/lib/analytics.ts`, com testes em `src/lib/analytics.test.ts`.
 
@@ -164,7 +164,7 @@ Exemplos (fato → frase):
 
 - A chave é colada pelo usuário nos ajustes, no próprio iPhone. Fica só no IndexedDB do aparelho. Nunca vai para o repo nem passa por servidor.
 - Provedores suportados: OpenAI e Anthropic (chamada direta do navegador).
-- Por padrão, só números e categorias vão para a IA. Nomes de remédio e textos de marco só vão se o usuário ativar.
+- Por padrão, só números e categorias vão para a IA. Nomes de remédio e textos de evento só vão se o usuário ativar.
 - Recomendação: colocar limite de gasto mensal na conta do provedor.
 
 ## 9. Dados
@@ -242,10 +242,10 @@ Atualizações: o service worker baixa a versão nova em segundo plano e ela val
 | fase | escopo | estado |
 | --- | --- | --- |
 | 0 | Repo, spec, PWA, ícones, deploy | feito |
-| 1 | Registro manhã e noite, marcos, remédios, backup | feito |
-| 2 | Hoje (frase determinística, horizonte), Linha (gráfico, faixa, marcos, "isso também passa"), lista de registros | feito |
+| 1 | Registro manhã e noite, eventos, remédios, backup | feito |
+| 2 | Hoje (frase determinística, horizonte), Linha (gráfico, faixa, eventos, "isso também vai passar"), lista de registros | feito |
 | 3 | Validação no iPhone real: instalação, offline, persistência, uso por alguns dias | próximo |
-| 4 | Antes/depois de marco, variabilidade, sono e hábitos, relatório de consulta, frases por IA, leitura semanal | a fazer |
+| 4 | Antes/depois de evento, variabilidade, sono e hábitos, relatório de consulta, frases por IA, leitura semanal | a fazer |
 | 5 | Palavras de emoção, WHO-5 quinzenal, lembretes por push, sincronização opcional | a fazer |
 
 ## 13. Em aberto

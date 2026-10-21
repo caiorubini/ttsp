@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks'
-import type { Entry } from './lib/db'
+import { loadSettings, type Entry } from './lib/db'
+import { useLive } from './lib/live'
 import type { Kind } from './lib/day'
 import { Home } from './screens/Home'
 import { Timeline } from './screens/Timeline'
@@ -7,13 +8,13 @@ import { Events } from './screens/Events'
 import { Settings } from './screens/Settings'
 import { Flow } from './screens/Flow'
 
-type Screen = 'hoje' | 'linha' | 'marcos' | 'ajustes'
+type Screen = 'hoje' | 'linha' | 'eventos' | 'ajustes'
 type FlowState = { kind: Kind; day: string; existing?: Entry; retro: boolean } | null
 
 const SCREENS: { key: Screen; label: string }[] = [
   { key: 'hoje', label: 'hoje' },
   { key: 'linha', label: 'linha' },
-  { key: 'marcos', label: 'marcos' },
+  { key: 'eventos', label: 'eventos' },
   { key: 'ajustes', label: 'ajustes' },
 ]
 
@@ -21,6 +22,11 @@ export function App() {
   const [screen, setScreen] = useState<Screen>('hoje')
   const [flow, setFlow] = useState<FlowState>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
+  const settings = useLive(loadSettings, [], null)
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--fs', String(settings?.textScale ?? 1))
+  }, [settings?.textScale])
 
   useEffect(() => {
     // pede ao navegador para não apagar os dados sob pressão de espaço. no iOS precisa ser pedido a cada abertura
@@ -40,7 +46,7 @@ export function App() {
       <main class="main">
         {screen === 'hoje' && <Home onLog={log} onNav={setScreen} />}
         {screen === 'linha' && <Timeline onLog={log} />}
-        {screen === 'marcos' && <Events />}
+        {screen === 'eventos' && <Events />}
         {screen === 'ajustes' && <Settings toast={setToastMsg} />}
       </main>
       <nav class="nav">

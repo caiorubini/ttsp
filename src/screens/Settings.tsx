@@ -6,7 +6,7 @@ import { DEFAULT_TAGS } from '../lib/dims'
 import { daysBetween, fmtDay } from '../lib/day'
 
 export function Settings({ toast }: { toast: (msg: string) => void }) {
-  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: DEFAULT_TAGS, lastBackupAt: null as string | null })
+  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: DEFAULT_TAGS, lastBackupAt: null as string | null, textScale: 1 })
   const count = useLive(() => db.entries.count(), [], 0)
   const [persisted, setPersisted] = useState<boolean | null>(null)
   const [newTag, setNewTag] = useState('')
@@ -57,7 +57,7 @@ export function Settings({ toast }: { toast: (msg: string) => void }) {
               if (!file) return
               try {
                 const c = await importBackup(await file.text())
-                toast(`Importado: ${c.entries} registros, ${c.events} marcos, ${c.meds} remédios.`)
+                toast(`Importado: ${c.entries} registros, ${c.events} eventos, ${c.meds} remédios.`)
               } catch (err) {
                 toast((err as Error).message)
               }
@@ -67,6 +67,23 @@ export function Settings({ toast }: { toast: (msg: string) => void }) {
         <button type="button" class="btn-text" style={{ justifySelf: 'start' }} onClick={() => exportCsv()}>
           exportar planilha (CSV) · {count} registros
         </button>
+      </div>
+
+      <div class="section">
+        <div class="section-h">
+          <h2>Tamanho do texto</h2>
+        </div>
+        <div class="seg">
+          {[
+            [1, 'normal'],
+            [1.12, 'maior'],
+            [1.25, 'bem maior'],
+          ].map(([v, label]) => (
+            <button key={v} type="button" aria-pressed={settings.textScale === v} onClick={() => setSetting('textScale', v)}>
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div class="section">

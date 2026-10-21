@@ -123,7 +123,7 @@ button{font:inherit; color:inherit}
 .phrase-card .t-phrase{font-size:27px}
 .phrase-card .foot{display:flex; justify-content:space-between; gap:12px; color:var(--ink-3)}
 
-/* marcos */
+/* eventos */
 .events{display:grid; max-width:560px}
 .ev{display:grid; grid-template-columns:64px 12px minmax(0,1fr); gap:14px; padding-block:14px; border-bottom:1px solid var(--line-2); align-items:start}
 .ev:first-child{border-top:1px solid var(--line-2)}
@@ -319,7 +319,7 @@ button{font:inherit; color:inherit}
         <div class="sub-h"><h3>Ações</h3></div>
         <div class="row">
           <button class="btn btn-primary" type="button">registrar a noite</button>
-          <button class="btn btn-line" type="button">adicionar marco</button>
+          <button class="btn btn-line" type="button">adicionar evento</button>
           <button class="btn btn-text" type="button">pular</button>
         </div>
       </div>
@@ -334,7 +334,7 @@ button{font:inherit; color:inherit}
       </div>
 
       <div class="sub">
-        <div class="sub-h"><h3>Marcos</h3><span class="mono faint">◆ medicação · ● bom · ○ difícil</span></div>
+        <div class="sub-h"><h3>Eventos</h3><span class="mono faint">◆ medicação · ● bom · ○ difícil</span></div>
         <div class="events">
           <div class="ev"><span class="mono muted">20 set</span><span class="glyph med"></span><div><b>Dose ajustada</b><small>remédio A · 50 → 75 mg</small></div></div>
           <div class="ev"><span class="mono muted">06 set</span><span class="glyph neg"></span><div><b>Projeto adiado de novo</b><small>frustração no trabalho</small></div></div>
@@ -345,7 +345,7 @@ button{font:inherit; color:inherit}
       <div class="sub">
         <div class="sub-h"><h3>Linha do tempo</h3><span class="mono faint">exemplo · 90 dias</span></div>
         <div class="chart-wrap">
-          <svg id="bigchart" viewBox="0 0 720 260" role="img" aria-label="Gráfico de exemplo do humor em 90 dias com média de 7 dias, calma, período de dose e marco"></svg>
+          <svg id="bigchart" viewBox="0 0 720 260" role="img" aria-label="Gráfico de exemplo do humor em 90 dias com média de 7 dias, calma, período de dose e evento"></svg>
           <div class="legend mono"><span><i class="lg-dot"></i>registro</span><span><i class="lg-line"></i>humor · média 7 dias</span><span><i class="lg-thin"></i>calma · média 7 dias</span><span><i class="lg-band"></i>dose atual</span></div>
         </div>
         <p class="note">Pontos crus quase apagados, a média de 7 dias forte. Seu normal (a sua mediana) é a linha pontilhada, nunca uma média da população. Cada período de dose vira uma faixa de fundo.</p>
@@ -405,7 +405,7 @@ button{font:inherit; color:inherit}
               <svg class="horizon" id="horizon" viewBox="0 0 256 96" aria-hidden="true"></svg>
               <div class="p-hz mono"><span>30 dias</span><span>hoje</span></div>
               <button class="btn btn-primary p-cta" type="button">registrar a noite</button>
-              <nav class="p-nav"><span class="on">hoje</span><span>linha</span><span>marcos</span><span>ajustes</span></nav>
+              <nav class="p-nav"><span class="on">hoje</span><span>linha</span><span>eventos</span><span>ajustes</span></nav>
             </div>
           </div>
           <p class="mono">hoje · 22h40</p>
@@ -443,7 +443,7 @@ button{font:inherit; color:inherit}
               <div class="p-chart"><svg id="smallchart" viewBox="0 0 256 150" aria-hidden="true"></svg></div>
               <div class="p-legend mono"><span><i class="lg-line"></i>humor</span><span><i class="lg-thin"></i>calma</span><span><i class="lg-band"></i>dose</span></div>
               <div class="pass">
-                <span class="t-label">isso também passa</span>
+                <span class="t-label">isso também vai passar</span>
                 <p id="passtext">fases abaixo do seu normal desde julho: 2. a típica durou 9 dias. todas passaram.</p>
               </div>
             </div>

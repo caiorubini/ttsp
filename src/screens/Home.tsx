@@ -1,4 +1,4 @@
-import { useMemo } from 'preact/hooks'
+import { useMemo, useState } from 'preact/hooks'
 import { db, loadSettings, type Entry } from '../lib/db'
 import { useLive } from '../lib/live'
 import { buildDays } from '../lib/analytics'
@@ -6,8 +6,9 @@ import { dailyFact } from '../lib/facts'
 import { daysBetween, fmtDay, hhmm, labelDay, logicalDay, suggestKind, type Kind } from '../lib/day'
 import { moodCss, type Mood } from '../lib/color'
 import { Horizon } from '../ui/Horizon'
+import { MomentPicker } from '../ui/MomentPicker'
 
-type Props = { onLog: (kind: Kind, day: string, existing?: Entry) => void; onNav: (s: 'ajustes') => void }
+type Props = { onLog: (kind: Kind, day: string, existing?: Entry, retro?: boolean) => void; onNav: (s: 'ajustes') => void }
 
 export function dayMood(entries: Entry[]): Mood | null {
   const pick = (k: 'humor' | 'calma' | 'energia') => {
@@ -20,7 +21,8 @@ export function dayMood(entries: Entry[]): Mood | null {
 
 export function Home({ onLog, onNav }: Props) {
   const entries = useLive(() => db.entries.toArray(), [], [] as Entry[])
-  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null })
+  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null, textScale: 1 })
+  const [picking, setPicking] = useState(false)
 
   const nowD = new Date()
   const today = logicalDay(nowD, settings.dayStartHour)
@@ -38,7 +40,7 @@ export function Home({ onLog, onNav }: Props) {
   return (
     <>
       <div class="top mono">
-        <b>ttsp</b>
+        <b class="brand">this too shall pass</b>
         <span>{labelDay(today)}</span>
       </div>
 
@@ -51,7 +53,7 @@ export function Home({ onLog, onNav }: Props) {
 
       <div class="horizon">
         <Horizon days={days} today={today} todayMood={todayMood} />
-        <div class="row mono faint" style={{ justifyContent: 'space-between', marginTop: '4px', fontSize: '11px' }}>
+        <div class="row mono faint" style={{ justifyContent: 'space-between', marginTop: '4px', fontSize: 'calc(11px * var(--fs))' }}>
           <span>30 dias</span>
           <span>hoje</span>
         </div>
@@ -71,7 +73,9 @@ export function Home({ onLog, onNav }: Props) {
                   {hhmm(e.at)} · editar
                 </button>
               ) : (
-                <span class="faint">ainda não</span>
+                <button type="button" class="mono faint" onClick={() => onLog(k, today)}>
+                  ainda não · registrar
+                </button>
               )}
             </div>
           )
@@ -88,6 +92,23 @@ export function Home({ onLog, onNav }: Props) {
         </button>
       ) : (
         <p class="note">Os dois registros de hoje estão feitos.</p>
+      )}
+
+      {picking ? (
+        <MomentPicker
+          today={today}
+          entries={entries}
+          initialKind={row?.morning ? other : 'morning'}
+          onCancel={() => setPicking(false)}
+          onOpen={(k, d, e, retro) => {
+            setPicking(false)
+            onLog(k, d, e, retro)
+          }}
+        />
+      ) : (
+        <button type="button" class="btn-text" style={{ justifySelf: 'start', textAlign: 'left', paddingLeft: 0 }} onClick={() => setPicking(true)}>
+          registrar outro momento ou outro dia
+        </button>
       )}
 
       {needsBackup && (

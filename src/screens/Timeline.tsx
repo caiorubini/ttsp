@@ -6,6 +6,7 @@ import { addDays, dayRange, hhmm, kindLabel, logicalDay, MONTHS_FULL, parseDay, 
 import { DIMS, type DimKey } from '../lib/dims'
 import { moodCss } from '../lib/color'
 import { Chart } from '../ui/Chart'
+import { MomentPicker } from '../ui/MomentPicker'
 import { dayMood } from './Home'
 
 type Props = { onLog: (kind: Kind, day: string, existing?: Entry, retro?: boolean) => void }
@@ -29,14 +30,12 @@ const KEYS: { key: SeriesKey; label: string }[] = [
 export function Timeline({ onLog }: Props) {
   const entries = useLive(() => db.entries.toArray(), [], [] as Entry[])
   const events = useLive(() => db.events.toArray(), [], [] as MoodEvent[])
-  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null })
+  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null, textScale: 1 })
   const [range, setRange] = useState<(typeof RANGES)[number]['key']>('90')
   const [key, setKey] = useState<SeriesKey>('indice')
   const [open, setOpen] = useState<string | null>(null)
   const [confirmDel, setConfirmDel] = useState<string | null>(null)
   const [retroOpen, setRetroOpen] = useState(false)
-  const [retroDay, setRetroDay] = useState('')
-  const [retroKind, setRetroKind] = useState<Kind>('night')
   const [limit, setLimit] = useState(14)
 
   const today = logicalDay(new Date(), settings.dayStartHour)
@@ -102,12 +101,12 @@ export function Timeline({ onLog }: Props) {
           ))}
         </div>
         <p class="mono faint" style={{ marginTop: '6px' }}>
-          pontos: registros na cor de cada um · linha: média de 7 dias · ◆ medicação ● bom ○ difícil
+          pontos: registros na cor de cada um · linha: média de 7 dias · eventos: ◆ medicação ● bom ○ difícil
         </p>
       </div>
 
       <div class="pass">
-        <span class="mono faint">isso também passa</span>
+        <span class="mono faint">isso também vai passar</span>
         {!pass ? (
           <p>com duas semanas de registro, aqui aparece quanto duram as suas fases difíceis.</p>
         ) : (
@@ -139,36 +138,20 @@ export function Timeline({ onLog }: Props) {
         <div class="section-h">
           <h2>Registros</h2>
           <button type="button" class="btn-text" onClick={() => setRetroOpen((v) => !v)}>
-            {retroOpen ? 'fechar' : 'registrar outro dia'}
+            {retroOpen ? 'fechar' : 'registrar outro momento'}
           </button>
         </div>
         {retroOpen && (
-          <div class="card">
-            <label class="field">
-              <span>dia</span>
-              <input class="input" type="date" max={today} value={retroDay} onInput={(e) => setRetroDay((e.currentTarget as HTMLInputElement).value)} />
-            </label>
-            <div class="row">
-              {(['morning', 'night'] as Kind[]).map((k) => (
-                <button key={k} type="button" class="chip" aria-pressed={retroKind === k} onClick={() => setRetroKind(k)}>
-                  {kindLabel(k)}
-                </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              class="btn btn-primary"
-              disabled={!retroDay || retroDay > today}
-              onClick={() => {
-                const existing = entries.find((e) => e.day === retroDay && e.kind === retroKind)
-                setRetroOpen(false)
-                onLog(retroKind, retroDay, existing, retroDay !== today)
-              }}
-            >
-              abrir registro
-            </button>
-            <p class="mono faint">registros de dias passados ficam marcados como retroativos.</p>
-          </div>
+          <MomentPicker
+            today={today}
+            entries={entries}
+            initialKind="night"
+            onCancel={() => setRetroOpen(false)}
+            onOpen={(k, d, e, retro) => {
+              setRetroOpen(false)
+              onLog(k, d, e, retro)
+            }}
+          />
         )}
         {inRange.length === 0 && <p class="empty">Nenhum registro neste período.</p>}
         <div class="list">

@@ -13,7 +13,7 @@ type Props = {
   onCancel: () => void
 }
 
-// criar ou editar um marco. marcos de medicação também atualizam a lista de remédios
+// criar ou editar um evento. eventos de medicação também atualizam a lista de remédios
 export function EventForm({ day, meds, initial, allowDayChange, defaultType, defaultMedId, onSaved, onCancel }: Props) {
   const [type, setType] = useState<EventType>(initial?.type ?? defaultType ?? 'bom')
   const [d, setD] = useState(initial?.day ?? day)
@@ -99,7 +99,7 @@ export function EventForm({ day, meds, initial, allowDayChange, defaultType, def
           cancelar
         </button>
         <button type="button" class="btn btn-primary" disabled={!canSave || busy} onClick={submit}>
-          salvar marco
+          salvar evento
         </button>
       </div>
     </div>

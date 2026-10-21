@@ -10,7 +10,7 @@ type Editing = { ev?: MoodEvent; type?: EventType; medId?: string } | null
 export function Events() {
   const events = useLive(() => db.events.toArray(), [], [] as MoodEvent[])
   const meds = useLive(() => db.meds.toArray(), [], [] as Med[])
-  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null })
+  const settings = useLive(loadSettings, [], { dayStartHour: 5, tags: [], lastBackupAt: null as string | null, textScale: 1 })
   const [editing, setEditing] = useState<Editing>(null)
   const [confirmDel, setConfirmDel] = useState<string | null>(null)
   const today = logicalDay(new Date(), settings.dayStartHour)
@@ -23,9 +23,9 @@ export function Events() {
       <>
         <div class="top mono">
           <b>ttsp</b>
-          <span>marcos</span>
+          <span>eventos</span>
         </div>
-        <h1 class="title">{editing.ev ? 'Editar marco' : editing.type === 'medicacao' ? 'Medicação' : 'Novo marco'}</h1>
+        <h1 class="title">{editing.ev ? 'Editar evento' : editing.type === 'medicacao' ? 'Medicação' : 'Novo evento'}</h1>
         <EventForm
           key={editing.ev?.id ?? 'novo'}
           day={editing.ev?.day ?? today}
@@ -45,12 +45,12 @@ export function Events() {
     <>
       <div class="top mono">
         <b>ttsp</b>
-        <span>{events.length} marcos</span>
+        <span>{events.length} {events.length === 1 ? 'evento' : 'eventos'}</span>
       </div>
-      <h1 class="title">Marcos</h1>
+      <h1 class="title">Eventos</h1>
       <p class="note">Fatos que importam: uma mudança de remédio, uma frustração, uma notícia boa. Eles aparecem como alfinetes na linha do tempo, e cada mudança de remédio abre uma faixa.</p>
       <button type="button" class="btn btn-primary btn-block" onClick={() => setEditing({})}>
-        novo marco
+        novo evento
       </button>
 
       <div class="section">
@@ -93,7 +93,7 @@ export function Events() {
         <div class="section-h">
           <h2>Histórico</h2>
         </div>
-        {sorted.length === 0 && <p class="empty">Nenhum marco ainda.</p>}
+        {sorted.length === 0 && <p class="empty">Nenhum evento ainda.</p>}
         <div class="list">
           {sorted.map((ev) => {
             const t = EVENT_TYPES.find((x) => x.key === ev.type)
