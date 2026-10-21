@@ -1,0 +1,752 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>[hidden]{display:none!important}</style></head><body>
+<title>Sistema visual ttsp</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Geist+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&display=swap">
+<style>
+/* layout: coluna editorial com rótulo à esquerda e conteúdo à direita, telas de celular em grade no fim */
+:root{
+  --bg:#F1F2F4; --surface:#FBFBFC; --ink:#15171C; --ink-2:#555A65; --ink-3:#8A8F99;
+  --line:#D8DBE0; --line-2:#E5E7EB; --focus:#3D4E7A; --shadow:rgba(20,24,34,.16);
+  --f-display:"Newsreader","Iowan Old Style",Georgia,serif;
+  --f-ui:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-data:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r-s:8px; --r-m:18px; --r-pill:999px;
+  --t-ui:180ms; --t-step:420ms; --t-tint:1200ms; --ease:cubic-bezier(.22,.8,.24,1);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0C0E13; --surface:#141720; --ink:#E7E8EC; --ink-2:#A0A5B0; --ink-3:#666C79;
+  --line:#272B36; --line-2:#1B1E27; --focus:#9FB0DA; --shadow:rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0C0E13; --surface:#141720; --ink:#E7E8EC; --ink-2:#A0A5B0; --ink-3:#666C79;
+  --line:#272B36; --line-2:#1B1E27; --focus:#9FB0DA; --shadow:rgba(0,0,0,.5); color-scheme:dark}
+
+/* telas fixas: manhã é sempre névoa, noite é sempre noite, independente do tema da página */
+.m-day{--bg:#F1F2F4; --surface:#FBFBFC; --ink:#15171C; --ink-2:#555A65; --ink-3:#8A8F99; --line:#D8DBE0; --line-2:#E5E7EB; --focus:#3D4E7A; color-scheme:light}
+.m-night{--bg:#0C0E13; --surface:#141720; --ink:#E7E8EC; --ink-2:#A0A5B0; --ink-3:#666C79; --line:#272B36; --line-2:#1B1E27; --focus:#9FB0DA; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--f-ui); font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased; font-weight:380}
+.wrap{max-width:1080px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:64px 96px}
+h1,h2,h3,p{margin:0}
+.mono{font-family:var(--f-data); font-size:12px; letter-spacing:.02em; font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+.faint{color:var(--ink-3)}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--focus); outline-offset:3px}
+
+/* cabeçalho */
+.head{display:grid; gap:20px; padding-bottom:56px}
+.wordmark{font-family:var(--f-display); font-weight:300; font-size:clamp(76px,16vw,148px); line-height:.9; letter-spacing:-.045em}
+.tag{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:22px; color:var(--ink-2)}
+.intro{max-width:56ch; color:var(--ink-2)}
+.meta{display:flex; flex-wrap:wrap; gap:8px 20px; color:var(--ink-3)}
+
+/* seções */
+.s{display:grid; grid-template-columns:200px minmax(0,1fr); gap:24px 56px; padding-block:48px; border-top:1px solid var(--line)}
+.s-label{display:grid; gap:6px; align-content:start}
+.s-label h2{font-family:var(--f-display); font-weight:400; font-size:26px; line-height:1.1; letter-spacing:-.01em}
+.s-label p{color:var(--ink-3); font-size:13px; line-height:1.45}
+.s-body{display:grid; gap:36px; min-width:0}
+@media (max-width:760px){.s{grid-template-columns:minmax(0,1fr)}}
+
+/* princípios */
+.principles{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:28px 40px}
+.principles h3{font-family:var(--f-display); font-style:italic; font-weight:400; font-size:21px; margin-bottom:6px}
+.principles p{color:var(--ink-2); font-size:14px; max-width:40ch}
+
+/* cor */
+.swatches{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:18px 20px}
+.sw{display:grid; gap:8px; min-width:0}
+.sw-pair{display:grid; grid-template-columns:1fr 1fr; height:56px; border-radius:var(--r-s); overflow:hidden; border:1px solid var(--line)}
+.sw-name{font-size:13px}
+.sw-hex{display:flex; justify-content:space-between; color:var(--ink-3)}
+.sub{display:grid; gap:14px}
+.sub-h{display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:6px 16px}
+.sub-h h3{font-weight:500; font-size:15px}
+.sky-grid{display:grid; grid-template-columns:64px repeat(5,minmax(0,1fr)); gap:10px 8px; align-items:center; max-width:520px}
+.sky-grid .dot{width:100%; max-width:44px; aspect-ratio:1; border-radius:50%; justify-self:center; box-shadow:inset 0 0 0 1px rgba(127,127,127,.18)}
+.sky-grid .ax{color:var(--ink-3); text-align:center}
+.sky-grid .ax-r{text-align:left}
+.days{display:flex; flex-wrap:wrap; gap:6px}
+.days span{width:14px; height:14px; border-radius:50%; box-shadow:inset 0 0 0 1px rgba(127,127,127,.18)}
+.note{color:var(--ink-2); font-size:14px; max-width:62ch}
+
+/* tipo */
+.type-rows{display:grid; gap:0}
+.type-row{display:grid; grid-template-columns:150px minmax(0,1fr); gap:8px 24px; padding-block:18px; border-bottom:1px solid var(--line-2); align-items:baseline}
+.type-row:first-child{padding-top:0}
+@media (max-width:560px){.type-row{grid-template-columns:minmax(0,1fr)}}
+.t-phrase{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:30px; line-height:1.22; letter-spacing:-.01em; text-wrap:balance}
+.t-question{font-family:var(--f-display); font-weight:400; font-size:28px; line-height:1.15; letter-spacing:-.01em}
+.t-title{font-family:var(--f-display); font-weight:400; font-size:22px; line-height:1.2}
+.t-body{font-size:15px; line-height:1.55; max-width:60ch}
+.t-label{font-family:var(--f-data); font-size:12px; letter-spacing:.04em; color:var(--ink-2)}
+.t-num{font-family:var(--f-data); font-size:28px; font-weight:400; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+
+/* escala analógica */
+.panel{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-m); padding:28px 24px; overflow:hidden; isolation:isolate}
+.tintable::before{content:""; position:absolute; inset:0; background:var(--tint,transparent); transition:background var(--t-tint) var(--ease); z-index:-1; pointer-events:none}
+.vas-list{display:grid; gap:30px}
+.vas-q{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:4px}
+.vas-q span:first-child{font-family:var(--f-display); font-size:20px}
+.vas{position:relative; height:48px; cursor:pointer; touch-action:pan-y; user-select:none; -webkit-user-select:none; outline:none}
+.vas:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:6px}
+.vas-track{position:absolute; left:0; right:0; top:50%; height:1px; background:var(--ink-3); opacity:.6}
+.vas-mid{position:absolute; left:50%; top:50%; width:1px; height:9px; background:var(--ink-3); transform:translate(-50%,-50%)}
+.vas-thumb{position:absolute; top:50%; width:22px; height:22px; border-radius:50%; background:var(--ink); transform:translate(-50%,-50%); transition:width var(--t-ui) var(--ease),height var(--t-ui) var(--ease); box-shadow:0 0 0 6px color-mix(in srgb,var(--bg) 0%,transparent)}
+.vas.is-active .vas-thumb{width:30px; height:30px}
+.vas-ghost{position:absolute; top:50%; width:8px; height:8px; border-radius:50%; border:1px solid var(--ink-3); transform:translate(-50%,-50%); opacity:0; transition:opacity 600ms var(--ease)}
+.vas-ghost.show{opacity:1}
+.vas-ghost i{position:absolute; top:12px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--f-data); font-style:normal; font-size:10px; color:var(--ink-3)}
+.vas-poles{display:flex; justify-content:space-between; font-family:var(--f-data); font-size:12px; color:var(--ink-2); letter-spacing:.02em}
+.vas-hint{font-family:var(--f-data); font-size:11px; color:var(--ink-3); transition:opacity 400ms}
+.is-set + .vas-poles + .vas-hint, .vas-hint.gone{opacity:0}
+
+/* chips e botões */
+.row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+.chip{border:1px solid var(--line); background:transparent; border-radius:var(--r-pill); padding:8px 15px; font-size:14px; cursor:pointer; transition:background var(--t-ui),color var(--t-ui),border-color var(--t-ui)}
+.chip[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.btn{border:0; border-radius:var(--r-pill); padding:14px 26px; font-size:15px; font-weight:450; cursor:pointer}
+.btn-primary{background:var(--ink); color:var(--bg)}
+.btn-line{background:transparent; border:1px solid var(--line); color:var(--ink)}
+.btn-text{background:transparent; padding:14px 8px; color:var(--ink-2)}
+
+/* frase do dia */
+.phrase-card{display:grid; gap:14px; padding:28px 26px; border:1px solid var(--line); border-radius:var(--r-m); max-width:520px}
+.phrase-card .t-phrase{font-size:27px}
+.phrase-card .foot{display:flex; justify-content:space-between; gap:12px; color:var(--ink-3)}
+
+/* marcos */
+.events{display:grid; max-width:560px}
+.ev{display:grid; grid-template-columns:64px 12px minmax(0,1fr); gap:14px; padding-block:14px; border-bottom:1px solid var(--line-2); align-items:start}
+.ev:first-child{border-top:1px solid var(--line-2)}
+.ev .glyph{width:9px; height:9px; margin-top:6px; border:1px solid var(--ink-2); border-radius:50%}
+.ev .glyph.med{border-radius:1px; transform:rotate(45deg); background:var(--ink-2)}
+.ev .glyph.neg{background:transparent}
+.ev .glyph.pos{background:var(--ink-2)}
+.ev b{font-weight:500; display:block}
+.ev small{color:var(--ink-2); font-size:13px}
+
+/* gráfico */
+.chart-wrap{border:1px solid var(--line); border-radius:var(--r-m); padding:18px 14px 12px; background:var(--surface)}
+.chart-wrap svg{display:block; width:100%; height:auto}
+.legend{display:flex; flex-wrap:wrap; gap:6px 18px; padding:10px 4px 0; color:var(--ink-2)}
+.legend i{display:inline-block; vertical-align:middle; margin-right:6px}
+.lg-dot{width:7px; height:7px; border-radius:50%; background:oklch(.6 .1 250)}
+.lg-line{width:16px; height:2px; background:var(--ink)}
+.lg-thin{width:16px; height:1px; background:var(--ink-3)}
+.lg-band{width:14px; height:10px; background:var(--ink); opacity:.08}
+.c-grid{stroke:var(--line-2); stroke-width:1}
+.c-base{stroke:var(--ink-3); stroke-width:1; stroke-dasharray:2 4}
+.c-main{fill:none; stroke:var(--ink); stroke-width:1.6; stroke-linejoin:round; stroke-linecap:round}
+.c-thin{fill:none; stroke:var(--ink-3); stroke-width:1; stroke-linejoin:round}
+.c-band{fill:var(--ink); fill-opacity:.055}
+.c-ev{stroke:var(--ink-2); stroke-width:1; stroke-dasharray:1 3}
+.c-txt{fill:var(--ink-3); font-family:var(--f-data); font-size:10px}
+.c-txt2{fill:var(--ink-2); font-family:var(--f-data); font-size:10px}
+.c-area{fill:var(--ink); fill-opacity:.05}
+
+/* ritmo */
+.specs{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:28px 40px}
+.spec h3{font-weight:500; font-size:15px; margin-bottom:10px}
+.spec ul{list-style:none; margin:0; padding:0; display:grid; gap:7px}
+.spec li{display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line-2); padding-bottom:7px; font-size:14px}
+.spec li span:last-child{color:var(--ink-3)}
+.space-bars{display:flex; align-items:flex-end; gap:10px; margin-top:12px}
+.space-bars div{background:var(--ink); opacity:.75; width:8px; border-radius:1px}
+
+/* voz */
+.voice{display:grid; gap:0}
+.vp{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:10px 36px; padding-block:22px; border-bottom:1px solid var(--line-2); align-items:baseline}
+.vp:first-child{padding-top:0}
+.vp .mono{color:var(--ink-3); line-height:1.6}
+.vp .t-phrase{font-size:23px}
+@media (max-width:640px){.vp{grid-template-columns:minmax(0,1fr)}}
+.rules{display:grid; gap:10px; max-width:62ch; padding:0; margin:0; list-style:none}
+.rules li{display:grid; grid-template-columns:20px minmax(0,1fr); color:var(--ink-2); font-size:14px}
+.rules li::before{content:"·"; color:var(--ink-3)}
+
+/* celulares */
+.phones{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:40px 28px; justify-items:center}
+.ph-cap{display:grid; gap:14px; justify-items:center; width:100%; max-width:300px}
+.ph-cap > p{color:var(--ink-3); text-align:center}
+.phone{position:relative; width:100%; max-width:300px; aspect-ratio:9/19.5; border-radius:46px; overflow:hidden; background:var(--bg); color:var(--ink); border:1px solid var(--line); box-shadow:0 40px 70px -40px var(--shadow); isolation:isolate}
+.screen{position:absolute; inset:0; display:flex; flex-direction:column; padding:54px 22px 24px}
+.island{position:absolute; top:12px; left:50%; width:86px; height:24px; border-radius:20px; background:#000; transform:translateX(-50%); z-index:2}
+.p-top{display:flex; justify-content:space-between; color:var(--ink-3)}
+.p-top b{font-family:var(--f-display); font-weight:400; font-size:17px; color:var(--ink); letter-spacing:-.02em}
+.p-phrase{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:25px; line-height:1.22; margin-top:44px; text-wrap:balance}
+.p-basis{margin-top:12px; color:var(--ink-3); font-size:10.5px}
+.grow{flex:1}
+.horizon{width:100%; height:auto; display:block}
+.p-hz{display:flex; justify-content:space-between; color:var(--ink-3); font-size:10.5px; margin-top:4px}
+.p-cta{margin-top:26px; width:100%; padding:15px; font-size:15px}
+.p-nav{display:flex; justify-content:space-around; margin-top:18px; color:var(--ink-3); font-size:12.5px}
+.p-nav .on{color:var(--ink)}
+.prog{display:grid; grid-template-columns:repeat(9,1fr); gap:4px}
+.prog i{height:2px; background:var(--line); border-radius:2px}
+.prog i.on{background:var(--ink)}
+.p-step{display:flex; justify-content:space-between; color:var(--ink-3); margin-top:10px; font-size:11px}
+.p-dim{margin-top:auto; color:var(--ink-2)}
+.p-q{font-family:var(--f-display); font-size:30px; line-height:1.12; letter-spacing:-.015em; margin-top:10px; margin-bottom:34px; text-wrap:balance}
+.p-actions{display:flex; justify-content:space-between; margin-top:auto; padding-top:20px}
+.p-actions button{background:none; border:0; color:var(--ink-3); font-size:13.5px; cursor:pointer; padding:8px 0}
+.p-h{font-family:var(--f-display); font-size:26px; letter-spacing:-.015em; margin-top:22px}
+.seg{display:flex; gap:14px; margin-top:12px; color:var(--ink-3); font-size:11px}
+.seg .on{color:var(--ink); border-bottom:1px solid var(--ink)}
+.skyband{display:flex; height:16px; border-radius:4px; overflow:hidden; margin-top:22px}
+.skyband i{flex:1}
+.p-chart{margin-top:14px}
+.p-chart svg{width:100%; height:auto; display:block}
+.p-legend{display:flex; gap:12px; color:var(--ink-3); font-size:10px; margin-top:6px}
+.p-legend i{display:inline-block; vertical-align:middle; margin-right:5px}
+.pass{margin-top:auto; border-top:1px solid var(--line); padding-top:16px; display:grid; gap:8px}
+.pass .t-label{color:var(--ink-3); font-size:10.5px}
+.pass p{font-family:var(--f-display); font-style:italic; font-weight:300; font-size:18px; line-height:1.3}
+
+.foot{padding-top:40px; border-top:1px solid var(--line); color:var(--ink-3); display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px}
+
+/* superfícies que assumem a cor do humor ao vivo, com tinta que se adapta ao fundo */
+.live{transition:background-color 380ms var(--ease),color 380ms var(--ease); color:var(--ink)}
+.on-light{--ink:#0A0F1C; --ink-2:rgba(10,15,28,.7); --ink-3:rgba(10,15,28,.48); --line:rgba(10,15,28,.2); --line-2:rgba(10,15,28,.12); --focus:#0A0F1C}
+.on-dark{--ink:#F3F5F9; --ink-2:rgba(243,245,249,.74); --ink-3:rgba(243,245,249,.5); --line:rgba(243,245,249,.22); --line-2:rgba(243,245,249,.12); --focus:#F3F5F9}
+.result{display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-top:30px; padding-top:18px; border-top:1px solid var(--line)}
+.result .sw-c{width:30px; height:30px; border-radius:50%; box-shadow:inset 0 0 0 1px var(--line); background:transparent}
+.result b{font-family:var(--f-display); font-weight:400; font-size:20px}
+.result .mono{color:var(--ink-2)}
+.c-dot{stroke:var(--ink-3); stroke-width:.6; stroke-opacity:.5}
+.flow-q{margin-top:auto; display:flex; flex-direction:column; transition:opacity 220ms var(--ease)}
+.flow-q.swap{opacity:0}
+.flow-q .p-dim{margin-top:0}
+.flow-end{margin-top:auto; display:grid; gap:8px}
+.flow-end .p-q{margin-bottom:10px}
+.flow-vals{display:grid; gap:7px; font-size:11.5px}
+.flow-vals div{display:flex; justify-content:space-between; border-bottom:1px solid var(--line); padding-bottom:7px}
+.flow-vals span:first-child{color:var(--ink-2)}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div class="wordmark">ttsp</div>
+    <div class="tag">this too shall pass</div>
+    <p class="intro">Amostra do sistema visual para aprovação: princípios, cor, tipografia, componentes, voz e três telas. A escala analógica funciona de verdade, toque e arraste nela. Todos os números são dados de exemplo.</p>
+    <div class="meta mono"><span>v0.1</span><span>pwa para iphone</span><span>pt-br</span></div>
+  </header>
+
+  <section class="s">
+    <div class="s-label"><h2>Princípios</h2><p>O que decide qualquer dúvida de design daqui para frente.</p></div>
+    <div class="s-body">
+      <div class="principles">
+        <div><h3>uma coisa por vez</h3><p>Cada tela tem uma pergunta ou uma leitura. Nada pisca, nada cobra, nada de sequência de dias.</p></div>
+        <div><h3>a cor é você</h3><p>A interface é só tinta e névoa. A única cor do app vem de como você estava naquele momento.</p></div>
+        <div><h3>sem certo e errado</h3><p>Não existe verde e vermelho. Nenhum extremo da escala é premiado, só registrado.</p></div>
+        <div><h3>a voz observa</h3><p>Frases curtas, nascidas dos seus números. Não motiva e não aconselha. Lê com gentileza.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label"><h2>Cor</h2><p>Neutros levemente frios. Névoa de dia, noite à noite.</p></div>
+    <div class="s-body">
+      <div class="swatches" id="swatches"></div>
+      <div class="sub">
+        <div class="sub-h"><h3>Cor do humor</h3><span class="mono faint">humor = saturação · tensão = tom · energia = brilho</span></div>
+        <div class="sky-grid" id="skygrid"></div>
+        <div class="sky-grid" id="energystrip"></div>
+        <p class="note">Cada escala mexe numa coisa só. O humor é a saturação: triste é cinza, sem cor, e quanto mais feliz, mais cor. A tensão é o tom: calmo é o azul #1074C4, ansioso adiciona vermelho e puxa para o roxo. A energia é o brilho: sem energia é preto, com energia a cor acende. A grade de cima mostra humor e tensão com a energia no máximo. A fileira de baixo mostra só a energia. Tudo no máximo dá exatamente #1074C4, e o texto fica sempre claro.</p>
+      </div>
+      <div class="sub">
+        <div class="sub-h"><h3>90 dias, como cor</h3><span class="mono faint">exemplo</span></div>
+        <div class="days" id="days"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label"><h2>Tipografia</h2><p>Newsreader para o que é humano. Geist para operar. Geist Mono para dados.</p></div>
+    <div class="s-body">
+      <div class="type-rows">
+        <div class="type-row"><span class="t-label">frase · newsreader 300 itálico 30</span><p class="t-phrase">você acorda pior do que termina o dia. a manhã costuma mentir um pouco.</p></div>
+        <div class="type-row"><span class="t-label">pergunta · newsreader 400 28</span><p class="t-question">Como está o seu humor agora?</p></div>
+        <div class="type-row"><span class="t-label">título · newsreader 400 22</span><p class="t-title">Linha do tempo</p></div>
+        <div class="type-row"><span class="t-label">texto · geist 380 15</span><p class="t-body">Comparando as quatro semanas antes e depois do ajuste de dose, a oscilação do humor caiu e a média subiu 6 pontos. São 28 dias de cada lado, ainda pouco para separar efeito do remédio de outras mudanças.</p></div>
+        <div class="type-row"><span class="t-label">rótulo · geist mono 12</span><p class="t-label">manhã · 3 de 9 · tensão</p></div>
+        <div class="type-row"><span class="t-label">número · geist mono 28</span><p class="t-num">−11 <span class="mono faint">pontos · n = 34</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label"><h2>Componentes</h2><p>Poucos, e sempre os mesmos.</p></div>
+    <div class="s-body">
+      <div class="sub">
+        <div class="sub-h"><h3>Escala analógica</h3><span class="mono faint">o número fica escondido no app · aqui aparece só para você testar</span></div>
+        <div class="panel live" id="panel-a">
+          <div class="vas-list">
+            <div>
+              <div class="vas-q"><span>Humor</span><span class="mono faint" id="out-1">·</span></div>
+              <div class="vas" role="slider" tabindex="0" aria-label="humor, de triste a feliz" aria-valuemin="0" aria-valuemax="100" data-out="out-1" data-k="humor" data-prev="58" data-prev-label="ontem à noite">
+                <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
+              </div>
+              <div class="vas-poles"><span>triste</span><span>feliz</span></div>
+            </div>
+            <div>
+              <div class="vas-q"><span>Tensão</span><span class="mono faint" id="out-2">·</span></div>
+              <div class="vas" role="slider" tabindex="0" aria-label="tensão, de ansioso a calmo" aria-valuemin="0" aria-valuemax="100" data-out="out-2" data-k="calma" data-prev="41" data-prev-label="ontem à noite">
+                <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
+              </div>
+              <div class="vas-poles"><span>ansioso</span><span>calmo</span></div>
+            </div>
+            <div>
+              <div class="vas-q"><span>Energia</span><span class="mono faint" id="out-3">·</span></div>
+              <div class="vas" role="slider" tabindex="0" aria-label="energia, de esgotado a com energia" aria-valuemin="0" aria-valuemax="100" data-out="out-3" data-k="energia" data-prev="66" data-prev-label="ontem à noite">
+                <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
+              </div>
+              <div class="vas-poles"><span>esgotado</span><span>com energia</span></div>
+            </div>
+          </div>
+          <div class="result"><span class="sw-c" id="res-sw"></span><b id="res-name">Mexa nas três linhas</b><span class="mono" id="res-hex">cor final</span></div>
+        </div>
+        <p class="note">A linha começa vazia, sem bolinha no meio. Você toca onde quer e ajusta arrastando. O tracinho central marca o neutro. Depois que você solta, aparece um anel discreto com o valor da vez anterior, nunca antes, para não ancorar a resposta. O painel inteiro assume a cor final em tempo real, e o texto troca de claro para escuro quando o fundo clareia.</p>
+      </div>
+
+      <div class="sub">
+        <div class="sub-h"><h3>Contexto do dia</h3><span class="mono faint">só toque · personalizável</span></div>
+        <div class="row" id="chips"></div>
+      </div>
+
+      <div class="sub">
+        <div class="sub-h"><h3>Ações</h3></div>
+        <div class="row">
+          <button class="btn btn-primary" type="button">registrar a noite</button>
+          <button class="btn btn-line" type="button">adicionar marco</button>
+          <button class="btn btn-text" type="button">pular</button>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="sub-h"><h3>Frase do dia</h3></div>
+        <div class="phrase-card">
+          <div class="mono faint">ter, 21 out</div>
+          <p class="t-phrase">nos dias em que você sai, a noite chega mais quieta.</p>
+          <div class="foot mono"><span>calma à noite +9 com ar livre</span><span>n = 17</span></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="sub-h"><h3>Marcos</h3><span class="mono faint">◆ medicação · ● bom · ○ difícil</span></div>
+        <div class="events">
+          <div class="ev"><span class="mono muted">20 set</span><span class="glyph med"></span><div><b>Dose ajustada</b><small>remédio A · 50 → 75 mg</small></div></div>
+          <div class="ev"><span class="mono muted">06 set</span><span class="glyph neg"></span><div><b>Projeto adiado de novo</b><small>frustração no trabalho</small></div></div>
+          <div class="ev"><span class="mono muted">16 ago</span><span class="glyph pos"></span><div><b>Fim de semana na praia</b><small>acontecimento bom</small></div></div>
+        </div>
+      </div>
+
+      <div class="sub">
+        <div class="sub-h"><h3>Linha do tempo</h3><span class="mono faint">exemplo · 90 dias</span></div>
+        <div class="chart-wrap">
+          <svg id="bigchart" viewBox="0 0 720 260" role="img" aria-label="Gráfico de exemplo do humor em 90 dias com média de 7 dias, calma, período de dose e marco"></svg>
+          <div class="legend mono"><span><i class="lg-dot"></i>registro</span><span><i class="lg-line"></i>humor · média 7 dias</span><span><i class="lg-thin"></i>calma · média 7 dias</span><span><i class="lg-band"></i>dose atual</span></div>
+        </div>
+        <p class="note">Pontos crus quase apagados, a média de 7 dias forte. Seu normal (a sua mediana) é a linha pontilhada, nunca uma média da população. Cada período de dose vira uma faixa de fundo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label"><h2>Ritmo</h2><p>Espaço, cantos e movimento.</p></div>
+    <div class="s-body">
+      <div class="specs">
+        <div class="spec"><h3>Espaço</h3>
+          <ul><li><span>4 · 8 · 12</span><span>dentro de componentes</span></li><li><span>16 · 24</span><span>entre elementos</span></li><li><span>48 · 72</span><span>entre seções</span></li></ul>
+          <div class="space-bars"><div style="height:4px"></div><div style="height:8px"></div><div style="height:12px"></div><div style="height:16px"></div><div style="height:24px"></div><div style="height:32px"></div><div style="height:48px"></div><div style="height:72px"></div></div>
+        </div>
+        <div class="spec"><h3>Cantos</h3>
+          <ul><li><span>8</span><span>amostras, faixas</span></li><li><span>18</span><span>cartões, painéis</span></li><li><span>pílula</span><span>botões, chips</span></li></ul>
+        </div>
+        <div class="spec"><h3>Movimento</h3>
+          <ul><li><span>180 ms</span><span>toque, estados</span></li><li><span>420 ms</span><span>troca de pergunta</span></li><li><span>1200 ms</span><span>cor do fundo</span></li><li><span>sem ícones</span><span>só palavras</span></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label"><h2>Voz</h2><p>À esquerda o fato que o app calcula. À direita a frase que o modelo escreve com ele.</p></div>
+    <div class="s-body">
+      <div class="voice">
+        <div class="vp"><span class="mono">humor ao acordar 11 pontos abaixo do da noite · 34 dias</span><p class="t-phrase">você acorda pior do que termina o dia. a manhã costuma mentir um pouco.</p></div>
+        <div class="vp"><span class="mono">oscilação 38% menor nas 4 semanas após o ajuste de dose</span><p class="t-phrase">desde o ajuste você oscila menos. ainda é cedo para dar nome a isso, mas a direção é boa.</p></div>
+        <div class="vp"><span class="mono">5º dia abaixo do seu normal · 5 fases anteriores, a típica durou 8 dias</span><p class="t-phrase">quinto dia abaixo do seu normal. nas últimas cinco vezes, no oitavo já era outra coisa.</p></div>
+        <div class="vp"><span class="mono">noites com ar livre: calma +9 · n = 17</span><p class="t-phrase">nos dias em que você sai, a noite chega mais quieta.</p></div>
+        <div class="vp"><span class="mono">3 noites seguidas com menos de 6 h · irritação +14</span><p class="t-phrase">três noites curtas seguidas. parte da irritação de hoje pode ser só sono.</p></div>
+      </div>
+      <ul class="rules">
+        <li>Minúsculas, frases curtas, no máximo duas.</li>
+        <li>Toda frase nasce de um fato calculado. O modelo nunca inventa número nem tendência.</li>
+        <li>Observa e lê, não aconselha. Nada de "você consegue".</li>
+        <li>Quando o dado é fraco, a frase diz isso. Correlação nunca vira causa.</li>
+        <li>A lente é gentil e honesta ao mesmo tempo. Nunca pessimista, nunca falsa.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="s">
+    <div class="s-label"><h2>Telas</h2><p>Hoje à noite, registro da manhã e linha do tempo. A do meio é interativa.</p></div>
+    <div class="s-body">
+      <div class="phones">
+        <div class="ph-cap">
+          <div class="phone m-night"><div class="island"></div>
+            <div class="screen">
+              <div class="p-top mono"><b>ttsp</b><span>ter, 21 out</span></div>
+              <p class="p-phrase">você acorda pior do que termina o dia. a manhã costuma mentir um pouco.</p>
+              <div class="p-basis mono" id="basis">a partir de 34 manhãs e 34 noites</div>
+              <div class="grow"></div>
+              <svg class="horizon" id="horizon" viewBox="0 0 256 96" aria-hidden="true"></svg>
+              <div class="p-hz mono"><span>30 dias</span><span>hoje</span></div>
+              <button class="btn btn-primary p-cta" type="button">registrar a noite</button>
+              <nav class="p-nav"><span class="on">hoje</span><span>linha</span><span>marcos</span><span>ajustes</span></nav>
+            </div>
+          </div>
+          <p class="mono">hoje · 22h40</p>
+        </div>
+
+        <div class="ph-cap">
+          <div class="phone m-day live" id="flow"><div class="island"></div>
+            <div class="screen">
+              <div class="prog" id="flow-prog" style="grid-template-columns:repeat(3,1fr)"><i></i><i></i><i></i></div>
+              <div class="p-step mono"><span>manhã · amostra</span><span id="flow-count">1 de 3</span></div>
+              <div class="flow-q" id="flow-q">
+                <div class="p-dim mono" id="flow-dim">humor</div>
+                <p class="p-q" id="flow-text">Como está o seu humor agora?</p>
+                <div class="vas" id="flow-vas" role="slider" tabindex="0" aria-label="humor, de triste a feliz" aria-valuemin="0" aria-valuemax="100" data-prev-label="ontem à noite">
+                  <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
+                </div>
+                <div class="vas-poles"><span id="flow-p0">triste</span><span id="flow-p1">feliz</span></div>
+                <div class="vas-hint" style="margin-top:22px">toque em qualquer ponto da linha</div>
+              </div>
+              <div class="flow-end" id="flow-end" hidden>
+                <div class="p-dim mono">sua cor de agora</div>
+                <p class="p-q" id="flow-name">Clara, azul vivo.</p>
+                <div class="flow-vals mono" id="flow-vals"></div>
+              </div>
+              <div class="p-actions"><button type="button" id="flow-back">voltar</button><button type="button" id="flow-skip">pular</button></div>
+            </div>
+          </div>
+          <p class="mono">registro · três perguntas · toque na linha</p>
+        </div>
+
+        <div class="ph-cap">
+          <div class="phone m-night"><div class="island"></div>
+            <div class="screen">
+              <div class="p-top mono"><b>ttsp</b><span>90 dias</span></div>
+              <p class="p-h">Linha do tempo</p>
+              <div class="seg mono"><span>2 sem</span><span class="on">3 meses</span><span>1 ano</span><span>tudo</span></div>
+              <div class="skyband" id="skyband"></div>
+              <div class="p-chart"><svg id="smallchart" viewBox="0 0 256 150" aria-hidden="true"></svg></div>
+              <div class="p-legend mono"><span><i class="lg-line"></i>humor</span><span><i class="lg-thin"></i>calma</span><span><i class="lg-band"></i>dose</span></div>
+              <div class="pass">
+                <span class="t-label">isso também passa</span>
+                <p id="passtext">fases abaixo do seu normal desde julho: 2. a típica durou 9 dias. todas passaram.</p>
+              </div>
+            </div>
+          </div>
+          <p class="mono">linha do tempo</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot mono"><span>ttsp · amostra do sistema visual v0.1</span><span>dados de exemplo</span></footer>
+</div>
+
+<script>
+(function(){
+  // uma cor só. humor = saturação (triste é cinza), tensão = tom (ansioso puxa para o roxo, calmo é o azul #1074C4),
+  // energia = brilho (sem energia é preto). tudo no máximo é exatamente #1074C4
+  var L0 = .5495, C0 = .1493, H0 = 249.95, H_ROXO = 305;
+  function rgbLin(L, C, H){
+    var h = H * Math.PI / 180, A = C * Math.cos(h), B = C * Math.sin(h);
+    var l = Math.pow(L + .3963377774 * A + .2158037573 * B, 3), m = Math.pow(L - .1055613458 * A - .0638541728 * B, 3), s = Math.pow(L - .0894841775 * A - 1.291485548 * B, 3);
+    return [4.0767416621 * l - 3.3077115913 * m + .2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - .3413193965 * s, -.0041960863 * l - .7034186147 * m + 1.707614701 * s];
+  }
+  function maxC(L, H){
+    var lo = 0, hi = .37;
+    for (var i = 0; i < 18; i++){ var mid = (lo + hi) / 2, c = rgbLin(L, mid, H); if (c.every(function(x){ return x >= 0 && x <= 1; })) lo = mid; else hi = mid; }
+    return lo;
+  }
+  function lch(h, c, e){
+    h = Math.max(0, Math.min(100, h)) / 100; c = Math.max(0, Math.min(100, c)) / 100; e = Math.max(0, Math.min(100, e)) / 100;
+    var L = L0 * Math.pow(e, .75), H = H0 + (1 - c) * (H_ROXO - H0);
+    var C = Math.min(C0 * h, maxC(L, H));
+    return [L, C, H];
+  }
+  function sky(h, c, e, a){
+    var k = lch(h, c, e);
+    return 'oklch(' + k[0].toFixed(3) + ' ' + k[1].toFixed(3) + ' ' + k[2].toFixed(1) + (a != null ? ' / ' + a : '') + ')';
+  }
+  function hex(h, c, e){
+    var k = lch(h, c, e);
+    return '#' + rgbLin(k[0], k[1], k[2]).map(function(x){
+      x = Math.max(0, Math.min(1, x)); x = x <= .0031308 ? 12.92 * x : 1.055 * Math.pow(x, 1 / 2.4) - .055;
+      return ('0' + Math.round(x * 255).toString(16)).slice(-2);
+    }).join('').toUpperCase();
+  }
+  // valores ausentes contam como neutro (50)
+  function mood(vals){
+    return { h: vals.humor == null ? 50 : vals.humor, c: vals.calma == null ? 50 : vals.calma, e: vals.energia == null ? 50 : vals.energia };
+  }
+  function paint(el, vals){
+    var md = mood(vals);
+    el.style.backgroundColor = sky(md.h, md.c, md.e);
+    el.classList.add('on-dark');
+    return md;
+  }
+  function unpaint(el){ el.style.backgroundColor = ''; el.classList.remove('on-dark'); }
+  function describe(h, c, e){
+    var brilho = e < 15 ? 'Apagada' : e < 40 ? 'Escura' : e < 70 ? 'Meia-luz' : 'Acesa';
+    if (h < 20) return brilho + ', quase sem cor.';
+    var tom = c > 66 ? 'azul' : c > 33 ? 'azul-violeta' : 'roxo';
+    return brilho + ', ' + tom + (h < 55 ? ' apagado' : h < 80 ? '' : ' vivo') + '.';
+  }
+
+  // neutros
+  var neutrals = [
+    ['bg', 'fundo', '#F1F2F4', '#0C0E13'], ['surface', 'superfície', '#FBFBFC', '#141720'],
+    ['ink', 'tinta', '#15171C', '#E7E8EC'], ['ink-2', 'tinta 2', '#555A65', '#A0A5B0'],
+    ['ink-3', 'tinta 3', '#8A8F99', '#666C79'], ['line', 'linha', '#D8DBE0', '#272B36']
+  ];
+  var sw = document.getElementById('swatches');
+  neutrals.forEach(function(n){
+    var d = document.createElement('div'); d.className = 'sw';
+    d.innerHTML = '<div class="sw-pair"><span style="background:' + n[2] + '"></span><span style="background:' + n[3] + '"></span></div>' +
+      '<div class="sw-name">' + n[1] + ' <span class="mono faint">--' + n[0] + '</span></div>' +
+      '<div class="sw-hex mono"><span>' + n[2] + '</span><span>' + n[3] + '</span></div>';
+    sw.appendChild(d);
+  });
+
+  // grade do céu
+  var g = document.getElementById('skygrid');
+  [['calmo', 100], ['meio', 50], ['ansioso', 0]].forEach(function(row){
+    var lab = document.createElement('span'); lab.className = 'ax ax-r mono'; lab.textContent = row[0]; g.appendChild(lab);
+    [0, 25, 50, 75, 100].forEach(function(v){ var c = document.createElement('span'); c.className = 'dot'; c.style.background = sky(v, row[1], 100); c.title = 'humor ' + v + ' · calma ' + row[1] + ' · energia 100 · ' + hex(v, row[1], 100); g.appendChild(c); });
+  });
+  var blank = document.createElement('span'); blank.className = 'ax ax-r mono'; blank.textContent = 'humor'; g.appendChild(blank);
+  ['0', '25', '50', '75', '100'].forEach(function(t){ var s = document.createElement('span'); s.className = 'ax mono'; s.textContent = t; g.appendChild(s); });
+  var g2 = document.getElementById('energystrip');
+  var lab2 = document.createElement('span'); lab2.className = 'ax ax-r mono'; lab2.textContent = ''; g2.appendChild(lab2);
+  [0, 25, 50, 75, 100].forEach(function(v){ var c = document.createElement('span'); c.className = 'dot'; c.style.background = sky(100, 100, v); c.title = 'energia ' + v + ' · ' + hex(100, 100, v); g2.appendChild(c); });
+  var lab3 = document.createElement('span'); lab3.className = 'ax ax-r mono'; lab3.textContent = 'energia'; g2.appendChild(lab3);
+  ['0', '25', '50', '75', '100'].forEach(function(t){ var s = document.createElement('span'); s.className = 'ax mono'; s.textContent = t; g2.appendChild(s); });
+
+  // dados de exemplo
+  var seed = 7;
+  function rnd(){ seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }
+  function nrm(){ return (rnd() + rnd() + rnd() - 1.5) / .5; }
+  function clamp(x){ return Math.max(3, Math.min(97, x)); }
+  var N = 90, EV = 58, start = new Date(2026, 6, 24), days = [];
+  for (var d = 0; d < N; d++){
+    var after = d >= EV ? 1 - Math.exp(-(d - EV) / 10) : 0;
+    var base = 62 + 6 * Math.sin(d / 8.5) - 24 * Math.exp(-Math.pow((d - 44) / 6.5, 2)) - 12 * Math.exp(-Math.pow((d - 14) / 3.5, 2)) + 4 * after;
+    var amp = d < EV ? 10 : 5.5;
+    var m = clamp(base - 7 + nrm() * amp), n = clamp(base + 4 + nrm() * amp);
+    var en = clamp(56 + 8 * Math.sin(d / 6) - 16 * Math.exp(-Math.pow((d - 45) / 6, 2)) + nrm() * 8);
+    var calm = clamp(57 + 5 * Math.sin(d / 11 + 1) - 18 * Math.exp(-Math.pow((d - 42) / 7, 2)) + 6 * after + nrm() * (d < EV ? 9 : 5));
+    days.push({ m: m, n: n, v: (m + n) / 2, w: .6 * (m + n) / 2 + .4 * calm, e: en, c: calm, date: new Date(start.getFullYear(), start.getMonth(), start.getDate() + d) });
+  }
+  function roll(key){ return days.map(function(_, i){ var s = 0, k = 0; for (var j = Math.max(0, i - 6); j <= i; j++){ s += days[j][key]; k++; } return s / k; }); }
+  var rv = roll('v'), rc = roll('c');
+  var sorted = rv.slice().sort(function(a, b){ return a - b; }), median = sorted[Math.floor(N / 2)];
+
+  // fases abaixo do normal
+  var runs = [], cur = 0;
+  rv.forEach(function(x){ if (x < median - 6){ cur++; } else { if (cur >= 3) runs.push(cur); cur = 0; } });
+  if (cur >= 3) runs.push(cur);
+  if (runs.length){
+    var rs = runs.slice().sort(function(a, b){ return a - b; });
+    var typ = rs[Math.floor(rs.length / 2)], longest = rs[rs.length - 1];
+    var txt = 'fases abaixo do seu normal desde julho: ' + runs.length + '. a típica durou ' + typ + ' dias' + (runs.length > 1 ? ', a mais longa ' + longest : '') + '. todas passaram.';
+    document.getElementById('passtext').textContent = txt;
+  }
+  document.getElementById('basis').textContent = 'a partir de ' + N + ' manhãs e ' + N + ' noites';
+
+  // dias como cor
+  var dd = document.getElementById('days');
+  days.forEach(function(x){ var s = document.createElement('span'); s.style.background = sky(x.v, x.c, x.e); s.title = x.date.toLocaleDateString('pt-BR'); dd.appendChild(s); });
+  var sb = document.getElementById('skyband');
+  days.forEach(function(x){ var i = document.createElement('i'); i.style.background = sky(x.v, x.c, x.e); sb.appendChild(i); });
+
+  // gráfico
+  var NS = 'http://www.w3.org/2000/svg';
+  function el(name, attrs, parent){ var e = document.createElementNS(NS, name); for (var k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; }
+  function smooth(pts){
+    var p = 'M' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1);
+    for (var i = 0; i < pts.length - 1; i++){
+      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      p += ' C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ',' + (p1[1] + (p2[1] - p0[1]) / 6).toFixed(1) + ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ',' + (p2[1] - (p3[1] - p1[1]) / 6).toFixed(1) + ' ' + p2[0].toFixed(1) + ',' + p2[1].toFixed(1);
+    }
+    return p;
+  }
+  var MES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  function chart(svg, o){
+    var W = o.w, H = o.h, P = o.pad;
+    var x = function(i){ return P.l + i * (W - P.l - P.r) / (N - 1); };
+    var y = function(v){ return P.t + (1 - v / 100) * (H - P.t - P.b); };
+    el('rect', { x: x(EV), y: P.t - 4, width: x(N - 1) - x(EV) + 2, height: H - P.t - P.b + 4, class: 'c-band' }, svg);
+    [25, 50, 75].forEach(function(v){ el('line', { x1: P.l, x2: W - P.r, y1: y(v), y2: y(v), class: 'c-grid' }, svg); });
+    if (o.yLabels) [0, 50, 100].forEach(function(v){ var t = el('text', { x: P.l - 8, y: y(v) + 3, 'text-anchor': 'end', class: 'c-txt' }, svg); t.textContent = v; });
+    el('line', { x1: P.l, x2: W - P.r, y1: y(median), y2: y(median), class: 'c-base' }, svg);
+    if (o.baseLabel){ var bt = el('text', { x: P.l + 4, y: y(median) - 5, class: 'c-txt' }, svg); bt.textContent = 'seu normal'; }
+    if (o.dots) days.forEach(function(dv, i){
+      el('circle', { cx: x(i), cy: y(dv.m), r: o.r, fill: sky(dv.m, dv.c, dv.e), class: 'c-dot' }, svg);
+      el('circle', { cx: x(i), cy: y(dv.n), r: o.r, fill: sky(dv.n, dv.c, dv.e), class: 'c-dot' }, svg);
+    });
+    el('path', { d: smooth(rc.map(function(v, i){ return [x(i), y(v)]; })), class: 'c-thin' }, svg);
+    el('path', { d: smooth(rv.map(function(v, i){ return [x(i), y(v)]; })), class: 'c-main' }, svg);
+    el('line', { x1: x(EV), x2: x(EV), y1: P.t - 4, y2: H - P.b, class: 'c-ev' }, svg);
+    if (o.evLabel){
+      var t1 = el('text', { x: x(EV) + 6, y: P.t + 6, class: 'c-txt2' }, svg); t1.textContent = '◆ dose ajustada';
+      var t2 = el('text', { x: x(EV) + 6, y: P.t + 19, class: 'c-txt' }, svg); t2.textContent = '50 → 75 mg';
+    }
+    days.forEach(function(dv, i){
+      if (dv.date.getDate() === 1){
+        el('line', { x1: x(i), x2: x(i), y1: H - P.b, y2: H - P.b + 4, class: 'c-grid' }, svg);
+        var t = el('text', { x: x(i), y: H - P.b + 16, 'text-anchor': 'middle', class: 'c-txt' }, svg); t.textContent = MES[dv.date.getMonth()];
+      }
+    });
+    var li = N - 1;
+    el('circle', { cx: x(li), cy: y(rv[li]), r: o.r + 2, fill: sky(days[li].v, days[li].c, days[li].e), class: 'c-dot' }, svg);
+  }
+  chart(document.getElementById('bigchart'), { w: 720, h: 260, pad: { l: 34, r: 14, t: 16, b: 26 }, dots: true, r: 2.2, yLabels: true, baseLabel: true, evLabel: true });
+  chart(document.getElementById('smallchart'), { w: 256, h: 150, pad: { l: 2, r: 6, t: 8, b: 20 }, dots: true, r: 1.3, evLabel: false });
+
+  // horizonte da tela inicial
+  var hz = document.getElementById('horizon'), last = rv.slice(-30), lo = Math.min.apply(null, last) - 8, hi = Math.max.apply(null, last) + 8;
+  var hx = function(i){ return 4 + i * 244 / 29; }, hy = function(v){ return 8 + (1 - (v - lo) / (hi - lo)) * 76; };
+  var pts = last.map(function(v, i){ return [hx(i), hy(v)]; });
+  var line = smooth(pts);
+  el('path', { d: line + ' L' + hx(29) + ',96 L' + hx(0) + ',96 Z', class: 'c-area' }, hz);
+  el('line', { x1: 0, x2: 256, y1: 95.5, y2: 95.5, class: 'c-grid' }, hz);
+  el('path', { d: line, class: 'c-main' }, hz);
+  var lastDay = days[N - 1];
+  el('circle', { cx: hx(29), cy: hy(last[29]), r: 9, fill: sky(lastDay.v, lastDay.c, lastDay.e, .3) }, hz);
+  el('circle', { cx: hx(29), cy: hy(last[29]), r: 4.5, fill: sky(lastDay.v, lastDay.c, lastDay.e) }, hz);
+
+  // chips
+  var chips = ['exercício', 'ar livre', 'socializei', 'álcool', 'cafeína tarde', 'tela até tarde', 'conflito', 'trabalho pesado', 'dor física'];
+  var cw = document.getElementById('chips');
+  chips.forEach(function(c, i){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = c;
+    b.setAttribute('aria-pressed', i === 1 || i === 2 ? 'true' : 'false');
+    b.addEventListener('click', function(){ b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); });
+    cw.appendChild(b);
+  });
+
+  // escala analógica
+  function makeVAS(vas, onChange, onRelease){
+    var thumb = vas.querySelector('.vas-thumb'), ghost = vas.querySelector('.vas-ghost'), val = null, active = false;
+    var hint = vas.parentElement.querySelector('.vas-hint');
+    function prev(p){
+      if (!ghost) return;
+      ghost.classList.remove('show');
+      if (p == null){ ghost.hidden = true; return; }
+      ghost.hidden = false; ghost.style.left = p + '%'; ghost.querySelector('i').textContent = vas.dataset.prevLabel || '';
+    }
+    function set(v, quiet){
+      val = Math.max(0, Math.min(100, v));
+      thumb.hidden = false; thumb.style.left = val + '%';
+      vas.setAttribute('aria-valuenow', Math.round(val)); vas.classList.add('is-set');
+      if (hint) hint.classList.add('gone');
+      if (!quiet && onChange) onChange(val);
+    }
+    function clear(){
+      val = null; thumb.hidden = true; vas.classList.remove('is-set'); vas.removeAttribute('aria-valuenow');
+      if (ghost) ghost.classList.remove('show');
+      if (hint) hint.classList.remove('gone');
+    }
+    function reveal(){ if (ghost && val !== null) ghost.classList.add('show'); }
+    function pos(ev){ var r = vas.getBoundingClientRect(); return (ev.clientX - r.left) / r.width * 100; }
+    vas.addEventListener('pointerdown', function(ev){ try { vas.setPointerCapture(ev.pointerId); } catch (e) {} active = true; vas.classList.add('is-active'); set(pos(ev)); });
+    vas.addEventListener('pointermove', function(ev){ if (active) set(pos(ev)); });
+    function end(){ if (!active) return; active = false; vas.classList.remove('is-active'); reveal(); if (onRelease && val !== null) onRelease(val); }
+    vas.addEventListener('pointerup', end); vas.addEventListener('pointercancel', end);
+    vas.addEventListener('keydown', function(ev){
+      if (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight'){ ev.preventDefault(); set((val === null ? 50 : val) + (ev.key === 'ArrowRight' ? 2 : -2)); reveal(); }
+      if (ev.key === 'Enter' && onRelease && val !== null) onRelease(val);
+    });
+    if (vas.dataset.prev) prev(+vas.dataset.prev);
+    return { set: set, clear: clear, prev: prev };
+  }
+
+  // painel de componentes: as três escalas pintam o painel ao vivo
+  var panel = document.getElementById('panel-a'), pvals = {};
+  var resSw = document.getElementById('res-sw'), resName = document.getElementById('res-name'), resHex = document.getElementById('res-hex');
+  panel.querySelectorAll('.vas').forEach(function(vas){
+    makeVAS(vas, function(v){
+      pvals[vas.dataset.k] = v;
+      var out = document.getElementById(vas.dataset.out); if (out) out.textContent = Math.round(v);
+      var md = paint(panel, pvals);
+      resSw.style.background = sky(md.h, md.c, md.e);
+      resName.textContent = describe(md.h, md.c, md.e);
+      resHex.textContent = 'cor final · ' + hex(md.h, md.c, md.e);
+    });
+  });
+
+  // fluxo de registro no celular
+  var steps = [
+    { k: 'humor', dim: 'humor', q: 'Como está o seu humor agora?', p: ['triste', 'feliz'], prev: 52 },
+    { k: 'calma', dim: 'tensão', q: 'Quanta calma você sente agora?', p: ['ansioso', 'calmo'], prev: 41 },
+    { k: 'energia', dim: 'energia', q: 'Quanta energia você tem agora?', p: ['esgotado', 'com energia'], prev: 66 }
+  ];
+  var flow = document.getElementById('flow'), fq = document.getElementById('flow-q'), fend = document.getElementById('flow-end');
+  var fback = document.getElementById('flow-back'), fskip = document.getElementById('flow-skip'), fvas = document.getElementById('flow-vas');
+  var fi = 0, fvals = {}, timer = null;
+  var fs = makeVAS(fvas, function(v){
+    clearTimeout(timer); fvals[steps[fi].k] = v; paint(flow, fvals);
+  }, function(){
+    clearTimeout(timer); timer = setTimeout(function(){ go(fi + 1); }, 650);
+  });
+  function render(){
+    var bars = document.querySelectorAll('#flow-prog i');
+    bars.forEach(function(b, i){ b.classList.toggle('on', i < fi || (i === fi && fvals[steps[i] && steps[i].k] != null)); });
+    if (fi < steps.length){
+      var st = steps[fi];
+      fq.hidden = false; fend.hidden = true; fskip.textContent = 'pular'; fback.style.visibility = fi === 0 ? 'hidden' : 'visible';
+      document.getElementById('flow-count').textContent = (fi + 1) + ' de ' + steps.length;
+      document.getElementById('flow-dim').textContent = st.dim;
+      document.getElementById('flow-text').textContent = st.q;
+      document.getElementById('flow-p0').textContent = st.p[0];
+      document.getElementById('flow-p1').textContent = st.p[1];
+      fvas.setAttribute('aria-label', st.dim + ', de ' + st.p[0] + ' a ' + st.p[1]);
+      fs.clear(); fs.prev(st.prev);
+      if (fvals[st.k] != null) fs.set(fvals[st.k], true);
+    } else {
+      var md = mood(fvals);
+      fq.hidden = true; fend.hidden = false; fskip.textContent = 'refazer'; fback.style.visibility = 'visible';
+      document.getElementById('flow-count').textContent = 'pronto';
+      document.getElementById('flow-name').textContent = describe(md.h, md.c, md.e);
+      var rows = [['humor', fvals.humor], ['calma', fvals.calma], ['energia', fvals.energia]].map(function(r){
+        return '<div><span>' + r[0] + '</span><span>' + (r[1] == null ? 'pulado' : Math.round(r[1])) + '</span></div>';
+      });
+      rows.push('<div><span>cor</span><span>' + hex(md.h, md.c, md.e) + '</span></div>');
+      document.getElementById('flow-vals').innerHTML = rows.join('');
+    }
+  }
+  function go(n){
+    clearTimeout(timer);
+    fq.classList.add('swap');
+    setTimeout(function(){ fi = Math.max(0, Math.min(steps.length, n)); render(); fq.classList.remove('swap'); }, 200);
+  }
+  fback.addEventListener('click', function(){ go(fi - 1); });
+  fskip.addEventListener('click', function(){
+    if (fi < steps.length) go(fi + 1);
+    else { fvals = {}; unpaint(flow); go(0); }
+  });
+  render();
+})();
+</script>
+</body></html>
