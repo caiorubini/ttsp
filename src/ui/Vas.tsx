@@ -9,17 +9,30 @@ type Props = {
   p1: string
   prev?: number | null
   prevLabel?: string
+  words?: string[]
+  onActive?: (active: boolean) => void
 }
 
 const clamp = (v: number) => Math.max(0, Math.min(100, v))
 
 // escala visual analógica em barra: começa vazia, tocar preenche até o ponto, arrastar ajusta.
 // a marca do valor anterior só aparece depois que há uma resposta.
-export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel }: Props) {
+export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel, words, onActive }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const last = useRef<number | null>(value)
   const dragging = useRef(false)
-  const [active, setActive] = useState(false)
+  const [active, setActiveState] = useState(false)
+  const setActive = (a: boolean) => {
+    setActiveState(a)
+    onActive?.(a)
+  }
+  // a palavra do degrau, com a direção do movimento para a animação
+  const step = value == null ? null : Math.max(0, Math.min(10, Math.round(value / 10)))
+  const lastStep = useRef<number | null>(step)
+  const dir = useRef<'up' | 'down'>('up')
+  if (step != null && lastStep.current != null && step !== lastStep.current) dir.current = step > lastStep.current ? 'up' : 'down'
+  lastStep.current = step
+  const word = words && step != null ? words[step] : null
 
   const pos = (ev: PointerEvent) => {
     const r = ref.current!.getBoundingClientRect()
@@ -39,6 +52,17 @@ export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel
 
   return (
     <div class="vas-wrap">
+      {words && (
+        <div class="vas-word" aria-live="polite">
+          {word ? (
+            <span key={word} class={`vas-word-in ${dir.current}`}>
+              {word}
+            </span>
+          ) : (
+            <span class="vas-word-empty">·</span>
+          )}
+        </div>
+      )}
       <div
         ref={ref}
         class={`vas${active ? ' is-active' : ''}${value == null ? ' is-empty' : ''}`}

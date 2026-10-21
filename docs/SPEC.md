@@ -69,6 +69,21 @@ Tipos: `medicacao`, `bom`, `dificil`, `saude`, `outro`. Campos: dia (pode ser re
 ### Regras do registro
 
 - Uma pergunta por tela. A escala é uma barra retangular com os dois polos escritos dentro e um ponto no neutro. Ela começa vazia: tocar preenche até ali com a própria tinta, translúcida, e arrastar ajusta. Enquanto o dedo está na barra o preenchimento fica mais opaco. Uma linha vertical na borda do preenchimento marca o valor. Ao soltar, avança sozinho depois de 650 ms.
+- Acima da barra aparece a palavra do degrau em que o dedo está. São 11 degraus por escala (0, 10, 20 ... 100), e a palavra troca com um leve deslizar na direção do movimento. A palavra só nomeia a faixa. O valor guardado continua contínuo, de 0 a 100. Foram 11 e não 20 porque o português não tem 20 estados distintos e ordenados para a maioria dessas escalas, e palavras quase sinônimas dariam uma precisão falsa.
+
+| escala | 0 → 100 |
+| --- | --- |
+| humor | arrasado, desolado, triste, abatido, para baixo, neutro, bem, de bom humor, contente, feliz, efusivo |
+| tensão | em pânico, aflito, muito ansioso, ansioso, inquieto, neutro, estável, tranquilo, calmo, sereno, em paz |
+| energia | exausto, esgotado, sem forças, cansado, lento, neutro, disposto, ativo, com energia, animado, elétrico |
+| interesse | vazio, apático, indiferente, desinteressado, morno, neutro, curioso, interessado, engajado, motivado, empolgado |
+| paciência | explosivo, furioso, irritado, impaciente, sensível, neutro, tolerante, paciente, tranquilo, leve, imperturbável |
+| mente | confusa, enevoada, nebulosa, dispersa, lenta, neutra, presente, clara, focada, afiada, cristalina |
+| qualidade do sono | péssimo, muito ruim, ruim, agitado, irregular, razoável, ok, bom, muito bom, profundo, ótimo |
+| descanso | destruído, exausto, muito cansado, cansado, sonolento, neutro, razoável, descansado, bem descansado, renovado, novo em folha |
+| o dia | angustiado, aflito, frustrado, insatisfeito, incomodado, neutro, ok, satisfeito, contente, realizado, pleno |
+| conexão | sozinho, isolado, distante, desconectado, reservado, neutro, presente, próximo, conectado, acolhido, em casa |
+
 - Toda pergunta tem "pular". Pular grava `null`, nunca um valor inventado.
 - Depois de responder aparece uma linha fina com o valor do registro anterior. Nunca antes, para não ancorar.
 - O dia lógico vira às 5h (configurável). Um registro à 1h conta como noite do dia anterior.
@@ -94,7 +109,7 @@ H = 249.95 + (1 − calma) × (305 − 249.95)
 C = min(0.1493 × humor, croma máximo em sRGB para L e H)
 ```
 
-Valores pulados contam como 50 para a cor. A cor de um dia é a cor da média dos registros do dia. Implementação: `src/lib/color.ts`.
+Valores pulados contam como 50 para a cor. Durante o registro, calma e energia que ainda não foram perguntadas contam como 100 na prévia, para a pergunta de humor mostrar a escala inteira, do cinza ao #1074C4. Enquanto o dedo arrasta, a cor muda sem transição. Entre perguntas, ela transiciona em 380 ms. A cor de um dia é a cor da média dos registros do dia. Implementação: `src/lib/color.ts`.
 
 ## 5. Sistema visual
 

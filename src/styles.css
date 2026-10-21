@@ -143,6 +143,14 @@ textarea.input { min-height: 84px; resize: vertical; }
 
 /* escala analógica: barra retangular que se preenche com a própria tinta, translúcida */
 .vas-wrap { position: relative; }
+/* a palavra do degrau aparece acima da barra e troca com um leve deslizar */
+.vas-word { position: relative; height: calc(40px * var(--fs)); margin-bottom: 14px; overflow: hidden; }
+.vas-word > span { position: absolute; left: 0; bottom: 0; font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: calc(30px * var(--fs)); line-height: 1.2; letter-spacing: -0.01em; white-space: nowrap; }
+.vas-word-empty { color: var(--ink-3); }
+.vas-word-in { animation: word-up 220ms var(--ease) both; }
+.vas-word-in.down { animation-name: word-down; }
+@keyframes word-up { from { opacity: 0; transform: translateY(60%); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+@keyframes word-down { from { opacity: 0; transform: translateY(-60%); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
 .vas {
   position: relative;
   height: 68px;
@@ -191,6 +199,8 @@ textarea.input { min-height: 84px; resize: vertical; }
   transition: background-color var(--t-color) var(--ease), color var(--t-color) var(--ease);
   overflow-y: auto;
 }
+/* durante o arraste a cor acompanha o dedo sem atraso */
+.flow.is-dragging { transition: none; }
 .flow-inner { max-width: 560px; width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; }
 .prog { display: flex; gap: 4px; }
 .prog i { flex: 1; height: 2px; border-radius: 2px; background: var(--line); transition: background var(--t-ui); }
@@ -199,7 +209,7 @@ textarea.input { min-height: 84px; resize: vertical; }
 .flow-body { margin-top: auto; padding-top: 32px; display: flex; flex-direction: column; transition: opacity 200ms var(--ease); }
 .flow-body.swap { opacity: 0; }
 .flow-dim { color: var(--ink-2); }
-.flow-q { font-family: var(--f-display); font-weight: 400; font-size: calc(32px * var(--fs)); line-height: 1.12; letter-spacing: -0.015em; margin: 10px 0 34px; text-wrap: balance; }
+.flow-q { font-family: var(--f-display); font-weight: 400; font-size: calc(32px * var(--fs)); line-height: 1.12; letter-spacing: -0.015em; margin: 10px 0 22px; text-wrap: balance; }
 .flow-actions { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 28px; }
 .flow-actions > button:not(.btn) { color: var(--ink-3); font-size: calc(14px * var(--fs)); padding: 10px 0; }
 .flow-vals { display: grid; gap: 8px; font-size: calc(12px * var(--fs)); }

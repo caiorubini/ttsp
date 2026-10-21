@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import { db, loadSettings, now, uid, type Entry, type Med, type Values } from '../lib/db'
 import { kindLabel, labelDay, sleepHours, type Kind } from '../lib/day'
-import { CORE, DIMS, MORNING_EXTRA, NIGHT_EXTRA, DEFAULT_TAGS, type DimKey } from '../lib/dims'
+import { CORE, DIMS, MORNING_EXTRA, NIGHT_EXTRA, DEFAULT_TAGS, WORDS, wordFor, type DimKey } from '../lib/dims'
 import { hasMood, moodCss, moodHex, moodName } from '../lib/color'
 import { Vas } from '../ui/Vas'
 import { EventForm } from '../ui/EventForm'
@@ -27,6 +27,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
   const [evMode, setEvMode] = useState<'ask' | 'form'>('ask')
   const [exitArmed, setExitArmed] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [dragging, setDragging] = useState(false)
   const timer = useRef<number | undefined>(undefined)
   const idRef = useRef(existing?.id ?? uid())
   const atRef = useRef(existing?.at ?? now())
@@ -93,7 +94,13 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
 
   const answered = Object.values(values).some((v) => v != null) || tags.length > 0
   const painted = hasMood(values)
-  const mood = { humor: values.humor, calma: values.calma, energia: values.energia }
+  // na prévia, calma e energia que ainda não chegaram contam como o máximo, para o humor mostrar a escala inteira.
+  // pulado (null) conta como 50, como na cor salva
+  const mood = {
+    humor: values.humor,
+    calma: values.calma === undefined ? 100 : values.calma,
+    energia: values.energia === undefined ? 100 : values.energia,
+  }
 
   const setDim = (key: DimKey, v: number | null) => setValues((s) => ({ ...s, [key]: v }))
   const isPast = retro || !!existing?.retro
@@ -103,7 +110,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
   if (!ready) return <div class="flow" />
 
   return (
-    <div class={`flow${painted ? ' on-color' : ''}`} style={painted ? { backgroundColor: moodCss(mood) } : undefined}>
+    <div class={`flow${painted ? ' on-color' : ''}${dragging ? ' is-dragging' : ''}`} style={painted ? { backgroundColor: moodCss(mood) } : undefined}>
       <div class="flow-inner">
         <div class="prog">
           {steps.map((_, k) => (
@@ -143,7 +150,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
                   .map((k) => (
                     <div key={k}>
                       <span>{DIMS[k].label}</span>
-                      <span>{values[k] == null ? 'pulado' : Math.round(values[k] as number)}</span>
+                      <span>{values[k] == null ? 'pulado' : `${wordFor(k, values[k] as number)} · ${Math.round(values[k] as number)}`}</span>
                     </div>
                   ))}
                 {kind === 'morning' && (
@@ -172,6 +179,8 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
                 p1={DIMS[step.key].p1}
                 prev={prev?.values[step.key] ?? null}
                 prevLabel={prev ? (prev.kind === 'morning' ? 'manhã anterior' : 'noite anterior') : undefined}
+                words={WORDS[step.key]}
+                onActive={setDragging}
                 onChange={(v) => {
                   clearTimeout(timer.current)
                   setDim(step.key, v)

@@ -14,6 +14,23 @@ export type DimKey =
 
 export type Dim = { key: DimKey; label: string; p0: string; p1: string; q: string }
 
+// 11 degraus por escala (0, 10, 20 ... 100). A palavra nomeia uma faixa. O valor guardado continua de 0 a 100.
+export const WORDS: Record<DimKey, string[]> = {
+  humor: ['arrasado', 'desolado', 'triste', 'abatido', 'para baixo', 'neutro', 'bem', 'de bom humor', 'contente', 'feliz', 'efusivo'],
+  calma: ['em pânico', 'aflito', 'muito ansioso', 'ansioso', 'inquieto', 'neutro', 'estável', 'tranquilo', 'calmo', 'sereno', 'em paz'],
+  energia: ['exausto', 'esgotado', 'sem forças', 'cansado', 'lento', 'neutro', 'disposto', 'ativo', 'com energia', 'animado', 'elétrico'],
+  interesse: ['vazio', 'apático', 'indiferente', 'desinteressado', 'morno', 'neutro', 'curioso', 'interessado', 'engajado', 'motivado', 'empolgado'],
+  paciencia: ['explosivo', 'furioso', 'irritado', 'impaciente', 'sensível', 'neutro', 'tolerante', 'paciente', 'tranquilo', 'leve', 'imperturbável'],
+  clareza: ['confusa', 'enevoada', 'nebulosa', 'dispersa', 'lenta', 'neutra', 'presente', 'clara', 'focada', 'afiada', 'cristalina'],
+  sono_qualidade: ['péssimo', 'muito ruim', 'ruim', 'agitado', 'irregular', 'razoável', 'ok', 'bom', 'muito bom', 'profundo', 'ótimo'],
+  descanso: ['destruído', 'exausto', 'muito cansado', 'cansado', 'sonolento', 'neutro', 'razoável', 'descansado', 'bem descansado', 'renovado', 'novo em folha'],
+  satisfacao: ['angustiado', 'aflito', 'frustrado', 'insatisfeito', 'incomodado', 'neutro', 'ok', 'satisfeito', 'contente', 'realizado', 'pleno'],
+  conexao: ['sozinho', 'isolado', 'distante', 'desconectado', 'reservado', 'neutro', 'presente', 'próximo', 'conectado', 'acolhido', 'em casa'],
+}
+
+export const stepOf = (v: number) => Math.max(0, Math.min(10, Math.round(v / 10)))
+export const wordFor = (key: DimKey, v: number) => WORDS[key][stepOf(v)]
+
 export const DIMS: Record<DimKey, Dim> = {
   humor: { key: 'humor', label: 'humor', p0: 'triste', p1: 'feliz', q: 'Como está o seu humor agora?' },
   calma: { key: 'calma', label: 'tensão', p0: 'ansioso', p1: 'calmo', q: 'Quanta calma você sente agora?' },
