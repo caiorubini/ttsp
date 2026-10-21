@@ -21,7 +21,7 @@ export const DIMS: Record<DimKey, Dim> = {
   interesse: { key: 'interesse', label: 'interesse', p0: 'apático', p1: 'engajado', q: 'Quanto interesse você sente pelas coisas?' },
   paciencia: { key: 'paciencia', label: 'paciência', p0: 'irritado', p1: 'tranquilo', q: 'Como está a sua paciência?' },
   clareza: { key: 'clareza', label: 'mente', p0: 'nebulosa', p1: 'clara', q: 'Como está a sua mente?' },
-  sono_qualidade: { key: 'sono_qualidade', label: 'sono', p0: 'péssimo', p1: 'ótimo', q: 'Como foi o seu sono?' },
+  sono_qualidade: { key: 'sono_qualidade', label: 'qualidade do sono', p0: 'péssimo', p1: 'ótimo', q: 'Como foi o seu sono?' },
   descanso: { key: 'descanso', label: 'descanso', p0: 'cansado', p1: 'descansado', q: 'Você acordou descansado?' },
   satisfacao: { key: 'satisfacao', label: 'o dia', p0: 'angustiado', p1: 'satisfeito', q: 'Como você se sente sobre o dia de hoje?' },
   conexao: { key: 'conexao', label: 'conexão', p0: 'isolado', p1: 'conectado', q: 'Quão conectado você se sentiu com as pessoas hoje?' },

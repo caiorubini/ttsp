@@ -145,7 +145,7 @@ export function Flow({ kind, day, retro, existing, onClose }: Props) {
                   ))}
                 {kind === 'morning' && (
                   <div>
-                    <span>sono</span>
+                    <span>horas na cama</span>
                     <span>{sleepHours(sleep.bed, sleep.wake).toFixed(1).replace('.', ',')} h</span>
                   </div>
                 )}

@@ -31,8 +31,6 @@ export function Home({ onLog, onNav }: Props) {
 
   const suggested = suggestKind(nowD, settings.dayStartHour)
   const other: Kind = suggested === 'morning' ? 'night' : 'morning'
-  const nights = [...days.values()].filter((r) => r.night).length
-  const mornings = [...days.values()].filter((r) => r.morning).length
 
   const backupAge = settings.lastBackupAt ? daysBetween(fmtDay(new Date(settings.lastBackupAt)), fmtDay(nowD)) : null
   const needsBackup = entries.length >= 5 && (backupAge == null || backupAge > 7)
@@ -47,7 +45,7 @@ export function Home({ onLog, onNav }: Props) {
       <div>
         <p class="phrase today-phrase">{fact.phrase}</p>
         <p class="basis mono">
-          {entries.length ? `${fact.basis} · a partir de ${mornings} ${mornings === 1 ? 'manhã' : 'manhãs'} e ${nights} ${nights === 1 ? 'noite' : 'noites'}` : fact.basis}
+          {fact.basis}
         </p>
       </div>
 

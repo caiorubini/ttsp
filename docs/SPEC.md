@@ -6,6 +6,8 @@ Este documento é a fonte de verdade do projeto. Qualquer pessoa (ou agente) dev
 
 Última revisão: 21 out 2026.
 
+Como rodar: `npm install`, `npm run dev` (abre em `/ttsp/`), `npm test`, `npm run build`. Ícones: `node scripts/icons.mjs` (precisa do Playwright).
+
 ---
 
 ## 1. Decisões fechadas
@@ -154,8 +156,8 @@ Exemplos (fato → frase):
 
 ### Motor de frases
 
-1. `src/lib/facts.ts` calcula uma lista de fatos candidatos, cada um com prioridade, texto do fato e n.
-2. Sem chave de IA: `src/lib/phrases.ts` escolhe o fato de maior prioridade e preenche um modelo escrito nessa voz.
+1. `src/lib/facts.ts` calcula uma lista de fatos candidatos, cada um com prioridade, base numérica (`basis`) e uma frase determinística já escrita nessa voz.
+2. Sem chave de IA: a tela Hoje mostra a frase do fato de maior prioridade e a base logo abaixo.
 3. Com chave de IA (fase 4): os fatos vão como JSON para o modelo com as regras de voz acima. A frase é gerada uma vez por registro e guardada. A leitura semanal (3 ou 4 frases) sai no domingo à noite.
 
 ### Chave de IA e privacidade
@@ -218,8 +220,8 @@ Estrutura:
 ```
 src/
   main.tsx, app.tsx, styles.css
-  lib/   color.ts, day.ts, dims.ts, db.ts, analytics.ts, facts.ts, phrases.ts, backup.ts, live.ts
-  ui/    Vas.tsx, Chart.tsx, Horizon.tsx
+  lib/   color.ts, day.ts, dims.ts, db.ts, analytics.ts, facts.ts, backup.ts, live.ts (+ testes *.test.ts)
+  ui/    Vas.tsx, Chart.tsx, Horizon.tsx, EventForm.tsx
   screens/ Home.tsx, Flow.tsx, Timeline.tsx, Events.tsx, Settings.tsx
 docs/  SPEC.md, design-system.html
 ```
@@ -231,15 +233,17 @@ docs/  SPEC.md, design-system.html
 3. Abrir sempre pelo ícone. Os dados do app da tela inicial são separados dos dados do Safari.
 4. Lembretes: o iOS não deixa um web app agendar notificação local. Usar o app Atalhos: Automação → Horário do dia → Abrir URL do ttsp, às 7h e às 22h30.
 
-Pré-requisito no GitHub (feito pelo dono do repo): Settings → Pages → Source: GitHub Actions.
+Pré-requisito no GitHub (feito pelo dono do repo): Settings → Pages → Source: GitHub Actions. Depois disso, cada push na `main` publica o app.
+
+Atualizações: o service worker baixa a versão nova em segundo plano e ela vale na próxima abertura do app.
 
 ## 12. Fases
 
 | fase | escopo | estado |
 | --- | --- | --- |
-| 0 | Repo, spec, PWA, ícones, deploy | em andamento |
-| 1 | Registro manhã e noite, marcos, remédios, backup | em andamento |
-| 2 | Hoje (frase determinística, horizonte), Linha (gráfico, faixa, marcos, "isso também passa"), lista de registros | em andamento |
+| 0 | Repo, spec, PWA, ícones, deploy | feito |
+| 1 | Registro manhã e noite, marcos, remédios, backup | feito |
+| 2 | Hoje (frase determinística, horizonte), Linha (gráfico, faixa, marcos, "isso também passa"), lista de registros | feito |
 | 3 | Validação no iPhone real: instalação, offline, persistência, uso por alguns dias | próximo |
 | 4 | Antes/depois de marco, variabilidade, sono e hábitos, relatório de consulta, frases por IA, leitura semanal | a fazer |
 | 5 | Palavras de emoção, WHO-5 quinzenal, lembretes por push, sincronização opcional | a fazer |

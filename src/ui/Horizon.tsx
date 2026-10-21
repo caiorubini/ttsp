@@ -19,7 +19,7 @@ export function Horizon({ days, today, todayMood }: { days: Map<string, DayRow>;
   }
   const lo = Math.min(...known) - 8
   const hi = Math.max(...known) + 8
-  const x = (i: number) => 6 + (i * (W - 14)) / 29
+  const x = (i: number) => 4 + (i * (W - 18)) / 29
   const y = (v: number) => 10 + (1 - (v - lo) / (hi - lo)) * (H - 22)
   const pts = vals.map((v, i) => (v == null ? null : ([x(i), y(v)] as [number, number]))).filter((p): p is [number, number] => !!p)
   const line = smooth(pts)

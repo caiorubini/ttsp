@@ -2,7 +2,7 @@ import { useMemo, useState } from 'preact/hooks'
 import { db, loadSettings, type Entry, type MoodEvent } from '../lib/db'
 import { useLive } from '../lib/live'
 import { baseline, buildDays, entryIndex, findPhases, morningNight, rolling, series, type SeriesKey } from '../lib/analytics'
-import { addDays, dayRange, hhmm, kindLabel, logicalDay, MONTHS, parseDay, shortDay, type Kind } from '../lib/day'
+import { addDays, dayRange, hhmm, kindLabel, logicalDay, MONTHS_FULL, parseDay, shortDay, type Kind } from '../lib/day'
 import { DIMS, type DimKey } from '../lib/dims'
 import { moodCss } from '../lib/color'
 import { Chart } from '../ui/Chart'
@@ -37,6 +37,7 @@ export function Timeline({ onLog }: Props) {
   const [retroOpen, setRetroOpen] = useState(false)
   const [retroDay, setRetroDay] = useState('')
   const [retroKind, setRetroKind] = useState<Kind>('night')
+  const [limit, setLimit] = useState(14)
 
   const today = logicalDay(new Date(), settings.dayStartHour)
   const days = useMemo(() => buildDays(entries), [entries])
@@ -62,7 +63,7 @@ export function Timeline({ onLog }: Props) {
 
   const sinceLabel = (d: string) => {
     const dt = parseDay(d)
-    return `${MONTHS[dt.getMonth()]}${dt.getFullYear() !== new Date().getFullYear() ? ` de ${dt.getFullYear()}` : ''}`
+    return `${MONTHS_FULL[dt.getMonth()]}${dt.getFullYear() !== new Date().getFullYear() ? ` de ${dt.getFullYear()}` : ''}`
   }
 
   return (
@@ -171,7 +172,7 @@ export function Timeline({ onLog }: Props) {
         )}
         {inRange.length === 0 && <p class="empty">Nenhum registro neste período.</p>}
         <div class="list">
-          {inRange.map((e) => {
+          {inRange.slice(0, limit).map((e) => {
             const idx = entryIndex(e)
             return (
               <div key={e.id}>
@@ -214,6 +215,11 @@ export function Timeline({ onLog }: Props) {
             )
           })}
         </div>
+        {inRange.length > limit && (
+          <button type="button" class="btn-text" style={{ justifySelf: 'start' }} onClick={() => setLimit((l) => l + 30)}>
+            mostrar mais ({inRange.length - limit})
+          </button>
+        )}
       </div>
     </>
   )

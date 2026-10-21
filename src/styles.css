@@ -175,12 +175,14 @@ textarea.input { min-height: 84px; resize: vertical; }
 .flow-dim { color: var(--ink-2); }
 .flow-q { font-family: var(--f-display); font-weight: 400; font-size: 32px; line-height: 1.12; letter-spacing: -0.015em; margin: 10px 0 34px; text-wrap: balance; }
 .flow-actions { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 28px; }
-.flow-actions button { color: var(--ink-3); font-size: 14px; padding: 10px 0; }
+.flow-actions > button:not(.btn) { color: var(--ink-3); font-size: 14px; padding: 10px 0; }
 .flow-vals { display: grid; gap: 8px; font-size: 12px; }
 .flow-vals div { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
 .flow-vals span:first-child { color: var(--ink-2); }
 .times { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.time-input { font-family: var(--f-display); font-size: 34px; padding: 6px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; width: 100%; border-radius: 0; -webkit-appearance: none; appearance: none; min-height: 56px; }
+.times > * { min-width: 0; }
+.time-input::-webkit-calendar-picker-indicator { display: none; }
+.time-input { font-family: var(--f-display); font-size: 30px; min-width: 0; padding: 6px 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; width: 100%; border-radius: 0; -webkit-appearance: none; appearance: none; min-height: 56px; }
 .med-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 
 /* hoje */
