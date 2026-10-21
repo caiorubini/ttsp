@@ -248,6 +248,8 @@ docs/  SPEC.md, design-system.html
 3. Abrir sempre pelo ícone. Os dados do app da tela inicial são separados dos dados do Safari.
 4. Lembretes: o iOS não deixa um web app agendar notificação local. Usar o app Atalhos: Automação → Horário do dia → Abrir URL do ttsp, às 7h e às 22h30.
 
+No iPhone, aberto no navegador em vez do ícone, o ttsp mostra só a instrução de instalar e, se aquele navegador já tiver registros, um botão para exportar o backup. Isso evita dois diários separados. Um link "usar no navegador mesmo assim" libera o uso naquele navegador.
+
 Pré-requisito no GitHub (feito pelo dono do repo): Settings → Pages → Source: GitHub Actions. Depois disso, cada push na `main` publica o app.
 
 Atualizações: o service worker baixa a versão nova em segundo plano e ela vale na próxima abertura do app.
@@ -261,6 +263,7 @@ Atualizações: o service worker baixa a versão nova em segundo plano e ela val
 | 2 | Hoje (frase determinística, horizonte), Linha (gráfico, faixa, eventos, "isso também vai passar"), lista de registros | feito |
 | 3 | Validação no iPhone real: instalação, offline, persistência, uso por alguns dias | próximo |
 | 4 | Antes/depois de evento, variabilidade, sono e hábitos, relatório de consulta, frases por IA, leitura semanal | a fazer |
+| 4b | Sincronização com criptografia de ponta a ponta (Supabase grátis, senha só do usuário): mesmo diário em qualquer navegador ou aparelho e backup automático | proposto, depende de conta Supabase |
 | 5 | Palavras de emoção, WHO-5 quinzenal, lembretes por push, sincronização opcional | a fazer |
 
 ## 13. Em aberto

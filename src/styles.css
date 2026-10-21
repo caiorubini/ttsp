@@ -275,3 +275,6 @@ input[type='time']::-webkit-date-and-time-value {
   margin: 0;
 }
 .field { min-width: 0; }
+
+.steps { margin: 0; padding-left: 22px; display: grid; gap: 14px; color: var(--ink-2); font-size: calc(15px * var(--fs)); }
+.steps b { color: var(--ink); font-weight: 500; }

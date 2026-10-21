@@ -7,6 +7,7 @@ import { Timeline } from './screens/Timeline'
 import { Events } from './screens/Events'
 import { Settings } from './screens/Settings'
 import { Flow } from './screens/Flow'
+import { InstallGate, needsInstall } from './ui/InstallGate'
 
 type Screen = 'hoje' | 'linha' | 'eventos' | 'ajustes'
 type FlowState = { kind: Kind; day: string; existing?: Entry; retro: boolean } | null
@@ -23,6 +24,7 @@ export function App() {
   const [flow, setFlow] = useState<FlowState>(null)
   const [toastMsg, setToastMsg] = useState<string | null>(null)
   const settings = useLive(loadSettings, [], null)
+  const [gate, setGate] = useState(needsInstall)
 
   useEffect(() => {
     document.documentElement.style.setProperty('--fs', String(settings?.textScale ?? 1))
@@ -40,6 +42,14 @@ export function App() {
   }, [toastMsg])
 
   const log = (kind: Kind, day: string, existing?: Entry, retro = false) => setFlow({ kind, day, existing, retro })
+
+  if (gate)
+    return (
+      <div class="app">
+        <InstallGate onBypass={() => setGate(false)} toast={setToastMsg} />
+        {toastMsg && <div class="toast">{toastMsg}</div>}
+      </div>
+    )
 
   return (
     <div class="app">
