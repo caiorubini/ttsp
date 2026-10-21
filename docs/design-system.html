@@ -85,24 +85,29 @@ button{font:inherit; color:inherit}
 .t-label{font-family:var(--f-data); font-size:12px; letter-spacing:.04em; color:var(--ink-2)}
 .t-num{font-family:var(--f-data); font-size:28px; font-weight:400; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
 
-/* escala analógica */
 .panel{position:relative; background:var(--surface); border:1px solid var(--line); border-radius:var(--r-m); padding:28px 24px; overflow:hidden; isolation:isolate}
-.tintable::before{content:""; position:absolute; inset:0; background:var(--tint,transparent); transition:background var(--t-tint) var(--ease); z-index:-1; pointer-events:none}
-.vas-list{display:grid; gap:30px}
-.vas-q{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:4px}
+/* escala analógica: barra retangular que se preenche com a própria tinta, translúcida */
+.vas-list{display:grid; gap:26px}
+.vas-q{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:10px}
 .vas-q span:first-child{font-family:var(--f-display); font-size:20px}
-.vas{position:relative; height:48px; cursor:pointer; touch-action:pan-y; user-select:none; -webkit-user-select:none; outline:none}
-.vas:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:6px}
-.vas-track{position:absolute; left:0; right:0; top:50%; height:1px; background:var(--ink-3); opacity:.6}
-.vas-mid{position:absolute; left:50%; top:50%; width:1px; height:9px; background:var(--ink-3); transform:translate(-50%,-50%)}
-.vas-thumb{position:absolute; top:50%; width:22px; height:22px; border-radius:50%; background:var(--ink); transform:translate(-50%,-50%); transition:width var(--t-ui) var(--ease),height var(--t-ui) var(--ease); box-shadow:0 0 0 6px color-mix(in srgb,var(--bg) 0%,transparent)}
-.vas.is-active .vas-thumb{width:30px; height:30px}
-.vas-ghost{position:absolute; top:50%; width:8px; height:8px; border-radius:50%; border:1px solid var(--ink-3); transform:translate(-50%,-50%); opacity:0; transition:opacity 600ms var(--ease)}
-.vas-ghost.show{opacity:1}
-.vas-ghost i{position:absolute; top:12px; left:50%; transform:translateX(-50%); white-space:nowrap; font-family:var(--f-data); font-style:normal; font-size:10px; color:var(--ink-3)}
-.vas-poles{display:flex; justify-content:space-between; font-family:var(--f-data); font-size:12px; color:var(--ink-2); letter-spacing:.02em}
+.vas{position:relative; height:64px; border-radius:var(--r-m); background:color-mix(in srgb, var(--ink) 7%, transparent); overflow:hidden; cursor:pointer; touch-action:pan-y; user-select:none; -webkit-user-select:none; outline:none; transition:background var(--t-ui) var(--ease)}
+.vas:focus-visible{outline:2px solid var(--focus); outline-offset:3px}
+.vas.is-active{background:color-mix(in srgb, var(--ink) 10%, transparent)}
+.vas-fill{position:absolute; inset:0 auto 0 0; border-radius:var(--r-m); background:color-mix(in srgb, var(--ink) 17%, transparent); transition:background var(--t-ui) var(--ease)}
+.vas.is-active .vas-fill{background:color-mix(in srgb, var(--ink) 28%, transparent)}
+.vas-handle{position:absolute; right:10px; top:50%; width:2px; height:26px; border-radius:2px; background:var(--ink); transform:translateY(-50%); opacity:.85}
+.vas-mid{position:absolute; left:50%; top:50%; width:4px; height:4px; border-radius:50%; background:var(--ink-3); transform:translate(-50%,-50%)}
+.vas-ghost{position:absolute; top:14px; bottom:14px; width:1px; background:var(--ink-2); opacity:0; transition:opacity 600ms var(--ease)}
+.vas-ghost.show{opacity:.7}
+.vas-pole{position:absolute; top:50%; transform:translateY(-50%); font-family:var(--f-data); font-size:12px; letter-spacing:.02em; color:var(--ink-2); pointer-events:none}
+.vas-p0{left:18px}
+.vas-p1{right:18px}
+.vas.is-empty .vas-pole{color:var(--ink-3)}
+.vas-ghost-label{position:relative; height:16px; margin-top:8px; font-family:var(--f-data); font-size:10.5px; color:var(--ink-3)}
+.vas-ghost-label span{position:absolute; top:0; transform:translateX(-50%); white-space:nowrap; opacity:0; transition:opacity 600ms var(--ease)}
+.vas-ghost-label.show span{opacity:1}
 .vas-hint{font-family:var(--f-data); font-size:11px; color:var(--ink-3); transition:opacity 400ms}
-.is-set + .vas-poles + .vas-hint, .vas-hint.gone{opacity:0}
+.vas-hint.gone{opacity:0}
 
 /* chips e botões */
 .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
@@ -289,29 +294,20 @@ button{font:inherit; color:inherit}
           <div class="vas-list">
             <div>
               <div class="vas-q"><span>Humor</span><span class="mono faint" id="out-1">·</span></div>
-              <div class="vas" role="slider" tabindex="0" aria-label="humor, de triste a feliz" aria-valuemin="0" aria-valuemax="100" data-out="out-1" data-k="humor" data-prev="58" data-prev-label="ontem à noite">
-                <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
-              </div>
-              <div class="vas-poles"><span>triste</span><span>feliz</span></div>
+              <div class="vas is-empty" role="slider" tabindex="0" aria-label="humor, de triste a feliz" aria-valuemin="0" aria-valuemax="100" data-out="out-1" data-k="humor" data-prev="58" data-prev-label="ontem à noite"><i class="vas-mid"></i><div class="vas-fill" hidden><i class="vas-handle"></i></div><i class="vas-ghost"></i><span class="vas-pole vas-p0">triste</span><span class="vas-pole vas-p1">feliz</span></div><div class="vas-ghost-label"><span></span></div>
             </div>
             <div>
               <div class="vas-q"><span>Tensão</span><span class="mono faint" id="out-2">·</span></div>
-              <div class="vas" role="slider" tabindex="0" aria-label="tensão, de ansioso a calmo" aria-valuemin="0" aria-valuemax="100" data-out="out-2" data-k="calma" data-prev="41" data-prev-label="ontem à noite">
-                <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
-              </div>
-              <div class="vas-poles"><span>ansioso</span><span>calmo</span></div>
+              <div class="vas is-empty" role="slider" tabindex="0" aria-label="tensão, de ansioso a calmo" aria-valuemin="0" aria-valuemax="100" data-out="out-2" data-k="calma" data-prev="41" data-prev-label="ontem à noite"><i class="vas-mid"></i><div class="vas-fill" hidden><i class="vas-handle"></i></div><i class="vas-ghost"></i><span class="vas-pole vas-p0">ansioso</span><span class="vas-pole vas-p1">calmo</span></div><div class="vas-ghost-label"><span></span></div>
             </div>
             <div>
               <div class="vas-q"><span>Energia</span><span class="mono faint" id="out-3">·</span></div>
-              <div class="vas" role="slider" tabindex="0" aria-label="energia, de esgotado a com energia" aria-valuemin="0" aria-valuemax="100" data-out="out-3" data-k="energia" data-prev="66" data-prev-label="ontem à noite">
-                <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
-              </div>
-              <div class="vas-poles"><span>esgotado</span><span>com energia</span></div>
+              <div class="vas is-empty" role="slider" tabindex="0" aria-label="energia, de esgotado a com energia" aria-valuemin="0" aria-valuemax="100" data-out="out-3" data-k="energia" data-prev="66" data-prev-label="ontem à noite"><i class="vas-mid"></i><div class="vas-fill" hidden><i class="vas-handle"></i></div><i class="vas-ghost"></i><span class="vas-pole vas-p0">esgotado</span><span class="vas-pole vas-p1">com energia</span></div><div class="vas-ghost-label"><span></span></div>
             </div>
           </div>
           <div class="result"><span class="sw-c" id="res-sw"></span><b id="res-name">Mexa nas três linhas</b><span class="mono" id="res-hex">cor final</span></div>
         </div>
-        <p class="note">A linha começa vazia, sem bolinha no meio. Você toca onde quer e ajusta arrastando. O tracinho central marca o neutro. Depois que você solta, aparece um anel discreto com o valor da vez anterior, nunca antes, para não ancorar a resposta. O painel inteiro assume a cor final em tempo real, e o texto troca de claro para escuro quando o fundo clareia.</p>
+        <p class="note">A barra começa vazia. Você toca onde quer, ela se preenche até ali com a própria tinta, translúcida, e você ajusta arrastando. Enquanto o dedo está na barra o preenchimento fica mais opaco. O ponto central marca o neutro. Depois que você solta, aparece uma linha fina com o valor da vez anterior, nunca antes, para não ancorar a resposta. O painel inteiro assume a cor final em tempo real, e o texto troca de claro para escuro quando o fundo clareia.</p>
       </div>
 
       <div class="sub">
@@ -423,11 +419,8 @@ button{font:inherit; color:inherit}
               <div class="flow-q" id="flow-q">
                 <div class="p-dim mono" id="flow-dim">humor</div>
                 <p class="p-q" id="flow-text">Como está o seu humor agora?</p>
-                <div class="vas" id="flow-vas" role="slider" tabindex="0" aria-label="humor, de triste a feliz" aria-valuemin="0" aria-valuemax="100" data-prev-label="ontem à noite">
-                  <div class="vas-track"></div><div class="vas-mid"></div><div class="vas-ghost"><i></i></div><div class="vas-thumb" hidden></div>
-                </div>
-                <div class="vas-poles"><span id="flow-p0">triste</span><span id="flow-p1">feliz</span></div>
-                <div class="vas-hint" style="margin-top:22px">toque em qualquer ponto da linha</div>
+                <div class="vas is-empty" id="flow-vas" role="slider" tabindex="0" aria-label="humor, de triste a feliz" aria-valuemin="0" aria-valuemax="100" data-prev-label="ontem à noite"><i class="vas-mid"></i><div class="vas-fill" hidden><i class="vas-handle"></i></div><i class="vas-ghost"></i><span class="vas-pole vas-p0" id="flow-p0">triste</span><span class="vas-pole vas-p1" id="flow-p1">feliz</span></div><div class="vas-ghost-label"><span></span></div>
+                <div class="vas-hint" style="margin-top:4px">toque em qualquer ponto da barra</div>
               </div>
               <div class="flow-end" id="flow-end" hidden>
                 <div class="p-dim mono">sua cor de agora</div>
@@ -648,27 +641,29 @@ button{font:inherit; color:inherit}
 
   // escala analógica
   function makeVAS(vas, onChange, onRelease){
-    var thumb = vas.querySelector('.vas-thumb'), ghost = vas.querySelector('.vas-ghost'), val = null, active = false;
+    var fill = vas.querySelector('.vas-fill'), ghost = vas.querySelector('.vas-ghost'), val = null, active = false;
+    var gl = vas.nextElementSibling && vas.nextElementSibling.classList.contains('vas-ghost-label') ? vas.nextElementSibling : null;
     var hint = vas.parentElement.querySelector('.vas-hint');
     function prev(p){
       if (!ghost) return;
-      ghost.classList.remove('show');
+      ghost.classList.remove('show'); if (gl) gl.classList.remove('show');
       if (p == null){ ghost.hidden = true; return; }
-      ghost.hidden = false; ghost.style.left = p + '%'; ghost.querySelector('i').textContent = vas.dataset.prevLabel || '';
+      ghost.hidden = false; ghost.style.left = p + '%';
+      if (gl){ var sp = gl.querySelector('span'); sp.textContent = vas.dataset.prevLabel || ''; sp.style.left = 'clamp(44px, ' + p + '%, calc(100% - 44px))'; }
     }
     function set(v, quiet){
       val = Math.max(0, Math.min(100, v));
-      thumb.hidden = false; thumb.style.left = val + '%';
-      vas.setAttribute('aria-valuenow', Math.round(val)); vas.classList.add('is-set');
+      fill.hidden = false; fill.style.width = 'max(20px, ' + val + '%)';
+      vas.setAttribute('aria-valuenow', Math.round(val)); vas.classList.add('is-set'); vas.classList.remove('is-empty');
       if (hint) hint.classList.add('gone');
       if (!quiet && onChange) onChange(val);
     }
     function clear(){
-      val = null; thumb.hidden = true; vas.classList.remove('is-set'); vas.removeAttribute('aria-valuenow');
-      if (ghost) ghost.classList.remove('show');
+      val = null; fill.hidden = true; vas.classList.remove('is-set'); vas.classList.add('is-empty'); vas.removeAttribute('aria-valuenow');
+      if (ghost) ghost.classList.remove('show'); if (gl) gl.classList.remove('show');
       if (hint) hint.classList.remove('gone');
     }
-    function reveal(){ if (ghost && val !== null) ghost.classList.add('show'); }
+    function reveal(){ if (ghost && val !== null){ ghost.classList.add('show'); if (gl) gl.classList.add('show'); } }
     function pos(ev){ var r = vas.getBoundingClientRect(); return (ev.clientX - r.left) / r.width * 100; }
     vas.addEventListener('pointerdown', function(ev){ try { vas.setPointerCapture(ev.pointerId); } catch (e) {} active = true; vas.classList.add('is-active'); set(pos(ev)); });
     vas.addEventListener('pointermove', function(ev){ if (active) set(pos(ev)); });

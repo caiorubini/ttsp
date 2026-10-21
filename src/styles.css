@@ -139,17 +139,41 @@ input, textarea, select { font: inherit; color: inherit; }
 textarea.input { min-height: 84px; resize: vertical; }
 .card { border: 1px solid var(--line); border-radius: var(--r-m); padding: 20px; display: grid; gap: 14px; background: var(--surface); }
 
-/* escala analógica */
-.vas { position: relative; height: 56px; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; }
-.vas:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.vas-track { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--ink-3); }
-.vas-mid { position: absolute; left: 50%; top: 50%; width: 1px; height: 10px; background: var(--ink-3); transform: translate(-50%, -50%); }
-.vas-thumb { position: absolute; top: 50%; width: 24px; height: 24px; border-radius: 50%; background: var(--ink); transform: translate(-50%, -50%); transition: width var(--t-ui) var(--ease), height var(--t-ui) var(--ease); }
-.vas.is-active .vas-thumb { width: 32px; height: 32px; }
-.vas-ghost { position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--ink-3); transform: translate(-50%, -50%); animation: fade 600ms var(--ease); }
-.vas-ghost i { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-family: var(--f-data); font-style: normal; font-size: 10px; color: var(--ink-3); }
-.vas-poles { display: flex; justify-content: space-between; font-family: var(--f-data); font-size: 12.5px; color: var(--ink-2); }
-.vas-hint { font-family: var(--f-data); font-size: 11px; color: var(--ink-3); margin-top: 24px; transition: opacity 400ms; }
+/* escala analógica: barra retangular que se preenche com a própria tinta, translúcida */
+.vas-wrap { position: relative; }
+.vas {
+  position: relative;
+  height: 68px;
+  border-radius: var(--r-m);
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+  transition: background var(--t-ui) var(--ease);
+}
+.vas:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.vas.is-active { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.vas-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--r-m);
+  background: color-mix(in srgb, var(--ink) 17%, transparent);
+  transition: background var(--t-ui) var(--ease);
+}
+.vas.is-active .vas-fill { background: color-mix(in srgb, var(--ink) 28%, transparent); }
+.vas-handle { position: absolute; right: 10px; top: 50%; width: 2px; height: 28px; border-radius: 2px; background: var(--ink); transform: translateY(-50%); opacity: 0.85; }
+.vas-mid { position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; border-radius: 50%; background: var(--ink-3); transform: translate(-50%, -50%); }
+.vas-ghost { position: absolute; top: 14px; bottom: 14px; width: 1px; background: var(--ink-2); opacity: 0.7; animation: fade 600ms var(--ease); }
+.vas-pole { position: absolute; top: 50%; transform: translateY(-50%); font-family: var(--f-data); font-size: 12.5px; letter-spacing: 0.02em; color: var(--ink-2); pointer-events: none; }
+.vas-p0 { left: 18px; }
+.vas-p1 { right: 18px; }
+.vas.is-empty .vas-pole { color: var(--ink-3); }
+.vas-under { position: relative; height: 34px; margin-top: 10px; }
+.vas-hint { font-family: var(--f-data); font-size: 11px; color: var(--ink-3); }
+.vas-ghost-label { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; font-family: var(--f-data); font-size: 10.5px; color: var(--ink-3); animation: fade 600ms var(--ease); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* fluxo de registro */

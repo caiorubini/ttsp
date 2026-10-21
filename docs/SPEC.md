@@ -68,9 +68,9 @@ Tipos: `medicacao`, `bom`, `dificil`, `saude`, `outro`. Campos: dia (pode ser re
 
 ### Regras do registro
 
-- Uma pergunta por tela. A linha começa vazia: tocar posiciona, arrastar ajusta. Ao soltar, avança sozinho depois de 650 ms.
+- Uma pergunta por tela. A escala é uma barra retangular com os dois polos escritos dentro e um ponto no neutro. Ela começa vazia: tocar preenche até ali com a própria tinta, translúcida, e arrastar ajusta. Enquanto o dedo está na barra o preenchimento fica mais opaco. Uma linha vertical na borda do preenchimento marca o valor. Ao soltar, avança sozinho depois de 650 ms.
 - Toda pergunta tem "pular". Pular grava `null`, nunca um valor inventado.
-- Depois de responder aparece um anel discreto com o valor do registro anterior. Nunca antes, para não ancorar.
+- Depois de responder aparece uma linha fina com o valor do registro anterior. Nunca antes, para não ancorar.
 - O dia lógico vira às 5h (configurável). Um registro à 1h conta como noite do dia anterior.
 - Antes das 14h o app sugere "registrar a manhã", depois sugere "registrar a noite".
 - Registro de um dia passado é marcado como `retro` e aparece com outro estilo nos gráficos.

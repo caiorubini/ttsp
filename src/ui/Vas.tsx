@@ -13,11 +13,12 @@ type Props = {
 
 const clamp = (v: number) => Math.max(0, Math.min(100, v))
 
-// escala visual analógica: começa vazia, tocar posiciona, arrastar ajusta.
-// o anel do valor anterior só aparece depois que há uma resposta.
+// escala visual analógica em barra: começa vazia, tocar preenche até o ponto, arrastar ajusta.
+// a marca do valor anterior só aparece depois que há uma resposta.
 export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const last = useRef<number | null>(value)
+  const dragging = useRef(false)
   const [active, setActive] = useState(false)
 
   const pos = (ev: PointerEvent) => {
@@ -29,16 +30,18 @@ export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel
     onChange(v)
   }
   const end = () => {
-    if (!active) return
+    if (!dragging.current) return
+    dragging.current = false
     setActive(false)
     if (last.current != null) onRelease?.(last.current)
   }
+  const showPrev = prev != null && value != null && !active
 
   return (
-    <div>
+    <div class="vas-wrap">
       <div
         ref={ref}
-        class={`vas${active ? ' is-active' : ''}`}
+        class={`vas${active ? ' is-active' : ''}${value == null ? ' is-empty' : ''}`}
         role="slider"
         tabIndex={0}
         aria-label={`${label}, de ${p0} a ${p1}`}
@@ -49,11 +52,12 @@ export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel
           try {
             ref.current!.setPointerCapture(ev.pointerId)
           } catch {}
+          dragging.current = true
           setActive(true)
           set(pos(ev))
         }}
         onPointerMove={(ev) => {
-          if (active) set(pos(ev))
+          if (dragging.current) set(pos(ev))
         }}
         onPointerUp={end}
         onPointerCancel={end}
@@ -65,21 +69,24 @@ export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel
           if (ev.key === 'Enter' && value != null) onRelease?.(value)
         }}
       >
-        <div class="vas-track" />
-        <div class="vas-mid" />
-        {prev != null && value != null && !active && (
-          <div class="vas-ghost" style={{ left: `${prev}%` }}>
-            <i>{prevLabel}</i>
+        <i class="vas-mid" />
+        {value != null && (
+          <div class="vas-fill" style={{ width: `max(20px, ${value}%)` }}>
+            <i class="vas-handle" />
           </div>
         )}
-        {value != null && <div class="vas-thumb" style={{ left: `${value}%` }} />}
+        {showPrev && <i class="vas-ghost" style={{ left: `${prev}%` }} />}
+        <span class="vas-pole vas-p0">{p0}</span>
+        <span class="vas-pole vas-p1">{p1}</span>
       </div>
-      <div class="vas-poles">
-        <span>{p0}</span>
-        <span>{p1}</span>
-      </div>
-      <div class="vas-hint" style={{ opacity: value == null ? 1 : 0 }}>
-        toque em qualquer ponto da linha
+      <div class="vas-under">
+        {value == null ? (
+          <span class="vas-hint">toque em qualquer ponto da barra</span>
+        ) : showPrev && prevLabel ? (
+          <span class="vas-ghost-label" style={{ left: `clamp(48px, ${prev}%, calc(100% - 48px))` }}>
+            {prevLabel}
+          </span>
+        ) : null}
       </div>
     </div>
   )
