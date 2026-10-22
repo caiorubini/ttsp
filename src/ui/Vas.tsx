@@ -1,4 +1,5 @@
 import { useRef, useState } from 'preact/hooks'
+import { tick } from '../lib/haptics'
 
 type Props = {
   value: number | null
@@ -39,6 +40,8 @@ export function Vas({ value, onChange, onRelease, label, p0, p1, prev, prevLabel
     return clamp(((ev.clientX - r.left) / r.width) * 100)
   }
   const set = (v: number) => {
+    // uma batida a cada degrau novo, e no primeiro toque
+    if (last.current == null || Math.round(v / 10) !== Math.round(last.current / 10)) tick()
     last.current = v
     onChange(v)
   }

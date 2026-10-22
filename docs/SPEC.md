@@ -84,6 +84,7 @@ Tipos: `medicacao`, `bom`, `dificil`, `saude`, `outro`. Campos: dia (pode ser re
 | o dia | angustiado, aflito, frustrado, insatisfeito, incomodado, neutro, ok, satisfeito, contente, realizado, pleno |
 | conexão | sozinho, isolado, distante, desconectado, reservado, neutro, presente, próximo, conectado, acolhido, em casa |
 
+- A cada degrau novo (e no primeiro toque) o celular dá uma batida tátil curta, como o encaixe de um dial. No Android via `navigator.vibrate`. No iPhone (iOS 18+) acionando um interruptor nativo escondido (`<input type="checkbox" switch>`), que gera a batida do sistema. Sem suporte, nada acontece.
 - Toda pergunta tem "pular". Pular grava `null`, nunca um valor inventado.
 - Depois de responder aparece uma linha fina com o valor do registro anterior. Nunca antes, para não ancorar.
 - O dia lógico vira às 5h (configurável). Um registro à 1h conta como noite do dia anterior.
