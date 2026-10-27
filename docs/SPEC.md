@@ -6,7 +6,7 @@ Este documento é a fonte de verdade do projeto. Qualquer pessoa (ou agente) dev
 
 Última revisão: 21 out 2026.
 
-Como rodar: `npm install`, `npm run dev` (abre em `/ttsp/`), `npm test`, `npm run build`. Ícones: `node scripts/icons.mjs` (precisa do Playwright).
+Como rodar: `npm install`, `npm run dev` (abre em `/ttsp/`), `npm test`, `npm run build`. Ícones: `python3 scripts/icons.py` (precisa de Pillow e numpy).
 
 ---
 
@@ -241,7 +241,7 @@ Objetivo: o mesmo diário em qualquer navegador ou aparelho, com backup automát
 - vite-plugin-pwa (Workbox) para manifesto e service worker. Funciona 100% offline.
 - Gráficos em SVG desenhados à mão.
 - `navigator.storage.persist()` pedido a cada abertura.
-- Ícones PNG (o iOS ignora SVG na tela inicial): 180, 192, 512 e maskable, gerados por `scripts/icons.mjs`.
+- Ícone: "ttsp" em serifada itálica preta sobre degradê cinza claro, desenhado pelo dono do app (`assets/icon-source.png`). PNGs de 180, 192, 512, maskable e favicon gerados por `scripts/icons.py`, que estende o fundo até os cantos (o iOS arredonda sozinho e ignora SVG na tela inicial).
 - Deploy: GitHub Actions publica `dist/` no Pages a cada push na `main`. Base `/ttsp/`.
 - Testes: Vitest para cor, dia lógico e análises.
 
